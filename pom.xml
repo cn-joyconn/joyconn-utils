@@ -16,15 +16,6 @@
         <module>mortise-utils-pichelper</module>
         <module>mortise-utils-VerifyCode</module>
     </modules>
-    <properties>
-        <java.version>1.8</java.version>
-        <spring-version>4.2.4.RELEASE</spring-version>
-        <springboot.version>1.5.2.RELEASE</springboot.version>
-        <springbootMybatise.version>1.1.1</springbootMybatise.version>
-        <springframe.version>4.3.2.RELEASE</springframe.version>
-        <githubPageHelper.version>5.0.0</githubPageHelper.version>
-        <mortise.version>1.5.2.RELEASE</mortise.version>
-    </properties>
     <parent>
         <groupId>top.mortise</groupId>
         <artifactId>top-mortise</artifactId>
