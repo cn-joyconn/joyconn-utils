@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+    <groupId>top.mortise.utils</groupId>
+    <artifactId>mortise-utils</artifactId>
+    <version>1.5.2.RELEASE</version>
+    <properties>
+        <java.version>1.8</java.version>
+        <spring-version>4.2.4.RELEASE</spring-version>
+        <springboot.version>1.5.2.RELEASE</springboot.version>
+        <springbootMybatise.version>1.1.1</springbootMybatise.version>
+        <springframe.version>4.3.2.RELEASE</springframe.version>
+        <githubPageHelper.version>5.0.0</githubPageHelper.version>
+        <mortise.version>1.5.2.RELEASE</mortise.version>
+    </properties>
+    <parent>
+        <groupId>top.mortise</groupId>
+        <artifactId>top-mortise</artifactId>
+        <version>1.5.2.RELEASE</version>
+    </parent>
+
+</project>
