@@ -7,6 +7,15 @@
     <groupId>top.mortise.utils</groupId>
     <artifactId>mortise-utils</artifactId>
     <version>1.5.2.RELEASE</version>
+    <modules>
+        <module>mortise-utils-comm</module>
+        <module>mortise-utils-loghelper</module>
+        <module>mortise-utils-encrypt</module>
+        <module>mortise-utils-uniqueID</module>
+        <module>mortise-utils-netutils</module>
+        <module>mortise-utils-pichelper</module>
+        <module>mortise-utils-VerifyCode</module>
+    </modules>
     <properties>
         <java.version>1.8</java.version>
         <spring-version>4.2.4.RELEASE</spring-version>
