@@ -11,6 +11,7 @@
 
     <groupId>top.mortise.utils</groupId>
     <artifactId>mortise-utils-uniqueID</artifactId>
+    <version>${mortise.version}</version>
 
     <dependencies>
         <dependency>

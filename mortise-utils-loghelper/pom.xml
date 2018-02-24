@@ -6,12 +6,12 @@
         <groupId>top.mortise.utils</groupId>
         <artifactId>mortise-utils</artifactId>
         <version>1.5.2.RELEASE</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.mortise.utils</groupId>
     <artifactId>mortise-utils-loghelper</artifactId>
+    <version>${mortise.version}</version>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

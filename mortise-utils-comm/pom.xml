@@ -6,10 +6,10 @@
         <groupId>top.mortise.utils</groupId>
         <artifactId>mortise-utils</artifactId>
         <version>1.5.2.RELEASE</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <version>${mortise.version}</version>
     <groupId>top.mortise.utils</groupId>
     <artifactId>mortise-utils-comm</artifactId>
 

@@ -6,7 +6,7 @@
     <packaging>pom</packaging>
     <groupId>top.mortise.utils</groupId>
     <artifactId>mortise-utils</artifactId>
-    <version>1.5.2.RELEASE</version>
+    <version>${mortise.version}</version>
     <modules>
         <module>mortise-utils-comm</module>
         <module>mortise-utils-loghelper</module>
