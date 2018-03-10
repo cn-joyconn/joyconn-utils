@@ -193,7 +193,8 @@ public class HttpRequestUtil {
             result.content = new String(baos.toByteArray(),"utf-8");
         }
         catch (IOException e) {
-            LogHelper.logger().error("执行HTTP "+httpMethod.getName()+" " + url+ "时，发生异常！请求参数：", e);
+            LogHelper.logger().error("执行HTTP "+httpMethod.getName()+" " + url+ "时，发生异常！请求参数：", e.getMessage());
+            result.code=404;
         }finally {
             httpMethod.releaseConnection();
         }
