@@ -1,14 +1,20 @@
-package top.mortise.utils.comm;
+package top.mortise.utils.webApiResult;
 
-import top.mortise.utils.comm.ResultCode;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Created by Eric.Zhang on 2017/3/13.
  */
+@ApiModel
 public class ResultObject<T> {
-    private String code;
+    @ApiModelProperty(value = "查询的页面大小")
+    private ResultCode code;
+    @ApiModelProperty(value = "错误详细信息")
     private String errorMsg;
+    @ApiModelProperty(value = "结果数据体")
     private  T result;
+    @ApiModelProperty(value = "符合条件的总条数,只在分页查询中有效")
     private  int allcount;
 
     public ResultObject(){
@@ -25,7 +31,7 @@ public class ResultObject<T> {
     /**
      * 获取结果标示代码
      */
-    public String getCode() {
+    public ResultCode getCode() {
         return code;
     }
 
@@ -33,7 +39,7 @@ public class ResultObject<T> {
      * 设置结果标示代码
      * @param code
      */
-    public void setCode(String code) {
+    public void setCode(ResultCode code) {
         this.code = code;
     }
 

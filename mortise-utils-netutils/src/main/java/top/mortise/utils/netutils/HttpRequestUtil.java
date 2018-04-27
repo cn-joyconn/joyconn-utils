@@ -15,17 +15,100 @@ import org.apache.commons.httpclient.util.URIUtil;
 import sun.net.www.http.*;
 
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 /**
  * Created by Eric.Zhang on 2017/1/11.
  */
 public class HttpRequestUtil {
+
+
+
+    //region 数据成员
+    /// <summary>PC（包括iE、google、sarfri）
+    /// </summary>
+    static  String[] PC = { "Windows NT", "Macintosh" };
+    /// <summary>安卓
+    /// </summary>
+    static  String[] Android = { "Android" };
+    /// <summary>IOS（"iPhone", "iPod", "iPad" ）
+    /// </summary>
+    static  String[] IOS = { "iPhone", "iPod", "iPad" };
+    /// <summary>windows phone
+    /// </summary>
+    static  String[] WP = { "Windows Phone" };
+    /// <summary>微信
+    /// </summary>
+    static  String[] WX = { "micromessenger","wechat" };
+    //endregion
+
+
+    /**
+     * 获取客户端类型----pc还是移动端
+     * @param request
+     * @return 1:pc/未知   ， 0:mobile
+     */
+    public static int GetClientType(HttpServletRequest request)
+    {
+        String userAgent = request.getHeader( "USER-AGENT" ).toLowerCase();
+        if (userAgent != null)
+        {
+            List<String> pcList = new ArrayList<>();
+            for(String s : PC){
+                pcList.add(s.toLowerCase());
+            }
+            List<String> moblieList = new ArrayList<>();
+            for(String s : Android){
+                moblieList.add(s.toLowerCase());
+            }
+            for(String s : IOS){
+                moblieList.add(s.toLowerCase());
+            }
+            for(String s : WP){
+                moblieList.add(s.toLowerCase());
+            }
+
+            for(String s : WX){
+                moblieList.add(s.toLowerCase());
+            }
+            if (pcList.parallelStream().anyMatch(source -> userAgent.indexOf(source) > -1))//判断是否是pc端
+            {
+                return 1;
+            }
+            else if ( moblieList.parallelStream().anyMatch(ua -> userAgent.indexOf(ua) > -1))//判断是否是移动端。
+            {
+                return 0;
+            }
+
+        }
+        return 1;
+    }
+    /**
+     * 是否利用cookie
+     * @param request
+     * @return 1:利用   ， 0:不利用
+     */
+    public static int noCookie(HttpServletRequest request)
+    {
+        String userAgent = request.getHeader( "USER-AGENT" ).toLowerCase();
+        if (userAgent != null)
+        {
+            List<String> moblieList = new ArrayList<>();
+            for(String s : WX){
+                moblieList.add(s.toLowerCase());
+            } if ( moblieList.parallelStream().anyMatch(ua -> userAgent.indexOf(ua) > -1))
+            {
+                return 0;
+            }
+
+        }
+        return 1;
+    }
+
 
     /**
      * 执行一个HTTP GET请求，返回请求响应的HTML
@@ -97,58 +180,52 @@ public class HttpRequestUtil {
      * 执行一个HTTP POST请求，返回请求响应的内容
      *
      * @param url        请求的URL地址
-     * @param params 请求的参数,可以为null
+     * @param bodyParams 请求的参数,可以为null
      * @param headers 请求的header,可以为null
      * @return 返回请求响应
      */
-    public static HttpResponseModel doPost(String url, List<NameValuePair> params,Map<String, String> headers) {
+    public static HttpResponseModel doPost(String url, List<NameValuePair> bodyParams,Map<String, String> headers) {
         HttpClient client = new HttpClient();
-        return doPost(url,params,headers,client);
+        return doPost(url,bodyParams,headers,client);
     }
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
      *
      * @param url        请求的URL地址
-     * @param params 请求的参数,可以为null
+     * @param bodyParams 请求的参数,可以为null
      * @param headers 请求的header,可以为null
      * @return 返回请求响应
      */
-    public static HttpResponseModel doPost(String url, Map<String, String> params,Map<String, String> headers) {
+    public static HttpResponseModel doPost(String url, Map<String, String> bodyParams,Map<String, String> headers) {
         HttpClient client = new HttpClient();
         //设置Http Post数据
         List<NameValuePair> dataPairs  =null;
-        if (params != null) {
+        if (bodyParams != null) {
              dataPairs=new ArrayList<NameValuePair>();
             int i=0;
-            for (Map.Entry<String, String> entry : params.entrySet()) {
+            for (Map.Entry<String, String> entry : bodyParams.entrySet()) {
                 dataPairs.add(new NameValuePair(entry.getKey(),entry.getValue()));
                 i++;
             }
         }
         return doPost(url,dataPairs,headers,client);
     }
-    public static HttpResponseModel doPost(String url, List<NameValuePair> params,Map<String, String> headers,HttpClient client) {
-        String response = null;
-        PostMethod  postMethod = new PostMethod(url);
-        HttpResponseModel result=new HttpResponseModel();
-        //设置Http Post数据
 
-        if (params != null) {
-            if(params.size()>0){
-                NameValuePair[] valuePairs = new NameValuePair[params.size()];
-                params.toArray(valuePairs);
-                postMethod.setRequestBody(valuePairs);
+    public static HttpResponseModel doPost(String url, Map<String, String> queryParams,Map<String, String> bodyParams,Map<String, String> headers) {
+        HttpClient client = new HttpClient();
+        for (String key : queryParams.keySet()) {
+            if (url.indexOf("?") > 0) {
+                url += "&";
+            } else {
+                url += "?";
+
             }
-        }
-        if(headers!=null){
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                postMethod.setRequestHeader(entry.getKey(), entry.getValue());
-            }
+            url += key + "=" + queryParams.get(key);
         }
 
-
-        return doRequest(url,client,postMethod);
+        return doPost(url,bodyParams,headers);
     }
+
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
      *
@@ -176,6 +253,59 @@ public class HttpRequestUtil {
 
         return doRequest(url,client,postMethod);
     }
+    public static HttpResponseModel doPost(String url, List<NameValuePair> params,Map<String, String> headers,HttpClient client) {
+        String response = null;
+        PostMethod  postMethod = new PostMethod(url);
+        HttpResponseModel result=new HttpResponseModel();
+        //设置Http Post数据
+
+        if (params != null) {
+            if(params.size()>0){
+                NameValuePair[] valuePairs = new NameValuePair[params.size()];
+                params.toArray(valuePairs);
+                postMethod.setRequestBody(valuePairs);
+            }
+        }
+        if(headers!=null){
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                postMethod.setRequestHeader(entry.getKey(), entry.getValue());
+            }
+        }
+
+
+        return doRequest(url,client,postMethod);
+    }
+    public static HttpResponseModel doPost(String url, Map<String, String> queryParams, List<NameValuePair> params,Map<String, String> headers,HttpClient client) {
+        String response = null;
+        PostMethod  postMethod = new PostMethod(url);
+        HttpResponseModel result=new HttpResponseModel();
+        //设置Http Post数据
+        for (String key : queryParams.keySet()) {
+            if (url.indexOf("?") > 0) {
+                url += "&";
+            } else {
+                url += "?";
+
+            }
+            url += key + "=" + queryParams.get(key);
+        }
+        if (params != null) {
+            if(params.size()>0){
+                NameValuePair[] valuePairs = new NameValuePair[params.size()];
+                params.toArray(valuePairs);
+                postMethod.setRequestBody(valuePairs);
+            }
+        }
+        if(headers!=null){
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                postMethod.setRequestHeader(entry.getKey(), entry.getValue());
+            }
+        }
+
+
+        return doRequest(url,client,postMethod);
+    }
+
 
 
     public static HttpResponseModel doRequest(String url, HttpClient client, HttpMethod  httpMethod) {

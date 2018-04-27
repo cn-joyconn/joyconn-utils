@@ -119,6 +119,9 @@ public class FileHelper {
      */
     public static void writeFile(String fileName, String content) {
         File file=new File(fileName);
+        if(!file.getParentFile().exists()){
+            file.getParentFile().mkdirs();
+        }
         if(!file.exists())
         {
             try {
@@ -142,6 +145,9 @@ public class FileHelper {
      */
     public static void writeFile(String fileName, char[] content) {
         File file=new File(fileName);
+        if(!file.getParentFile().exists()){
+            file.getParentFile().mkdirs();
+        }
         if(!file.exists())
         {
             try {

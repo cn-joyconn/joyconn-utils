@@ -4,11 +4,14 @@ package top.mortise.utils.encrypt;
  */
 
 import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
+import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidParameterSpecException;
 
 public class AESUtils
 {
@@ -21,6 +24,12 @@ public class AESUtils
     public static String decryptStr(String encryptResultStr, String password){
         byte[] decryptFrom = parseHexStr2Byte(encryptResultStr);
         byte[] decryptResult = decrypt(decryptFrom, password);
+        return  new String(decryptResult);
+    }
+
+    public static String decryptStr(String encryptResultStr, String password,String iv){
+        byte[] decryptFrom = parseHexStr2Byte(encryptResultStr);
+        byte[] decryptResult = decrypt(decryptFrom, password,iv);
         return  new String(decryptResult);
     }
     /**
@@ -105,6 +114,53 @@ public class AESUtils
         }
         catch (BadPaddingException e)
         {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    /**解密
+     * @param content  待解密内容
+     * @param password 解密密钥
+     * @return
+     */
+    public static byte[] decrypt(byte[] content, String password,String iv)
+    {
+        try
+        {
+            byte[] ivByte = Base64Utils.decode(iv);
+            AlgorithmParameters parameters = AlgorithmParameters.getInstance("AES");
+            parameters.init(new IvParameterSpec(ivByte));
+            SecretKey secretKey =getKey(password);
+            byte[] enCodeFormat = secretKey.getEncoded();
+            SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");
+            Cipher cipher = Cipher.getInstance("AES");// 创建密码器
+           // cipher.init(Cipher.DECRYPT_MODE, key);// 初始化
+            cipher.init(Cipher.DECRYPT_MODE, key, parameters);// 初始化
+            byte[] result = cipher.doFinal(content);
+            return result; // 加密
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
+        catch (NoSuchPaddingException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InvalidKeyException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalBlockSizeException e)
+        {
+            e.printStackTrace();
+        }
+        catch (BadPaddingException e)
+        {
+            e.printStackTrace();
+        } catch (InvalidParameterSpecException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
