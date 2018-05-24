@@ -26,7 +26,7 @@ public class FileHelper {
         try {
             file=new File(fileName);
             if(file.exists()){
-                reader = new BufferedReader(new FileReader(file));
+                reader=new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8"));
                 String tempString = null;
                 int line = 1;
                 // 一次读入一行，直到读入null为文件结束
@@ -65,7 +65,7 @@ public class FileHelper {
         try {
             file=new File(fileName);
             if(file.exists()){
-                reader = new BufferedReader(new FileReader(file));
+                reader=new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8"));
                 String tempString = null;
                 int line = 1;
                 // 一次读入一行，直到读入null为文件结束
