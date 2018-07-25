@@ -3,8 +3,6 @@ package top.mortise.utils.pay.wxpay;
 import com.alibaba.fastjson.JSON;
 import com.github.wxpay.sdk.WXPay;
 import com.github.wxpay.sdk.WXPayUtil;
-import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +15,10 @@ import top.mortise.utils.pay.wxpay.model.OrderRefund;
 import top.mortise.utils.pay.wxpay.request.*;
 import top.mortise.utils.pay.wxpay.response.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
+
 public class WxPayService {
 
     private final WXPay wxPay;
@@ -32,7 +31,7 @@ public class WxPayService {
  * @return
  */
      private static <T> Map<String, Object> beanToMap(T bean) {
-    Map<String, Object> map = Maps.newHashMap();
+    Map<String, Object> map = new HashMap<>();
     if (bean != null) {
         BeanMap beanMap = BeanMap.create(bean);
         for (Object key : beanMap.keySet()) {
@@ -63,7 +62,7 @@ public class WxPayService {
 
     private Map<String, String> getParamMap(Object request) {
         Map<String, Object> paramMap = beanToMap(request);
-        Map<String, String> filteredParamMap = Maps.newHashMap();
+        Map<String, String> filteredParamMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
             if (entry.getValue() != null) {
                 filteredParamMap.put(entry.getKey(), entry.getValue().toString());
@@ -102,7 +101,7 @@ public class WxPayService {
      * @throws Exception
      */
     public Map<String, String> getAppPayParam(AppUnifiedOrderResponse response) throws Exception {
-        Map<String, String> appPayParamMap = Maps.newHashMap();
+        Map<String, String> appPayParamMap =new HashMap<>();
         appPayParamMap.put("appid", response.getAppid());
         appPayParamMap.put("partnerid", response.getMch_id());
         appPayParamMap.put("prepayid", response.getPrepay_id());
@@ -372,7 +371,7 @@ public class WxPayService {
      * @throws Exception
      */
     public boolean isPayResultNotifySignatureValid(Map<String, Object> reqData) throws Exception {
-        Map<String, String> data = Maps.newHashMap();
+        Map<String, String> data =new HashMap<>();
         for (Map.Entry<String, Object> entry : reqData.entrySet()) {
             if (entry.getValue() != null) {
                 data.put(entry.getKey(), entry.getValue().toString());

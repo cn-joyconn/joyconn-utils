@@ -6,7 +6,6 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.*;
 import com.alipay.api.response.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.mortise.utils.pay.alipay.autoconfigure.AliPayConfig;
@@ -17,7 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 
-@Slf4j
+
 public class AliPayService {
     /**
      * 日志

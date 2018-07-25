@@ -1,16 +1,14 @@
 package top.mortise.utils.pay.wxpay.request;
 
 
-import lombok.Getter;
-import lombok.Setter;
+
 import org.hibernate.validator.constraints.Length;
 import top.mortise.utils.pay.wxpay.enums.WxPayTradeTypeEnum;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-@Getter
-@Setter
+
 public class AppUnifiedOrderRequest {
 
     /**

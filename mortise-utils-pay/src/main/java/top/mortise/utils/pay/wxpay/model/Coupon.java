@@ -1,14 +1,11 @@
 package top.mortise.utils.pay.wxpay.model;
 
-import com.google.common.collect.Lists;
-import lombok.Getter;
-import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Getter
-@Setter
+
 public class Coupon {
 
     /**
@@ -30,7 +27,7 @@ public class Coupon {
     private Integer coupon_fee;
 
     public static List<Coupon> parse(Map<String, String> responseParamMap) {
-        List<Coupon> couponList = Lists.newArrayList();
+        List<Coupon> couponList = new ArrayList<>();
         if (responseParamMap.get("coupon_count") != null) {
             int coupon_count = Integer.valueOf(responseParamMap.get("coupon_count"));
             for (int i = 0; i < coupon_count; i++) {
@@ -42,5 +39,29 @@ public class Coupon {
             }
         }
         return couponList;
+    }
+
+    public String getCoupon_id() {
+        return coupon_id;
+    }
+
+    public void setCoupon_id(String coupon_id) {
+        this.coupon_id = coupon_id;
+    }
+
+    public String getCoupon_type() {
+        return coupon_type;
+    }
+
+    public void setCoupon_type(String coupon_type) {
+        this.coupon_type = coupon_type;
+    }
+
+    public Integer getCoupon_fee() {
+        return coupon_fee;
+    }
+
+    public void setCoupon_fee(Integer coupon_fee) {
+        this.coupon_fee = coupon_fee;
     }
 }

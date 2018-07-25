@@ -1,9 +1,8 @@
 package top.mortise.utils.pay.wxpay.model;
 
-import com.google.common.collect.Lists;
-import lombok.Getter;
-import lombok.Setter;
 
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -96,7 +95,7 @@ public class OrderRefund {
     private String refund_success_time;
 
     public static List<OrderRefund> parse(Map<String, String> responseParamMap) {
-        List<OrderRefund> orderRefundList = Lists.newArrayList();
+        List<OrderRefund> orderRefundList = new ArrayList<>();
         if (responseParamMap.get("refund_count") != null) {
             int refund_count = Integer.valueOf(responseParamMap.get("refund_count"));
             for (int i = 0; i < refund_count; i++) {
@@ -113,7 +112,7 @@ public class OrderRefund {
                 if (responseParamMap.containsKey("coupon_refund_count_" + i)) {
                     int coupon_refund_count = Integer.valueOf(responseParamMap.get("coupon_refund_count_" + i));
                     orderRefund.setCoupon_refund_count(coupon_refund_count);
-                    List<CouponRefund> couponRefundList = Lists.newArrayList();
+                    List<CouponRefund> couponRefundList =new ArrayList<>();
                     for (int j = 0; j < coupon_refund_count; j++) {
                         CouponRefund couponRefund = new CouponRefund();
                         couponRefund.setCoupon_refund_id(responseParamMap.get("coupon_refund_id_" + i + "_" + j));

@@ -1,8 +1,7 @@
 package top.mortise.utils.pay.wxpay.request;
 
 
-import lombok.Getter;
-import lombok.Setter;
+
 import org.hibernate.validator.constraints.Length;
 import top.mortise.utils.pay.wxpay.enums.WxPayBillTypeEnum;
 
@@ -10,8 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@Getter
-@Setter
+
 public class DownloadBillRequest {
 
     /**
@@ -39,5 +37,29 @@ public class DownloadBillRequest {
     public DownloadBillRequest(Date billDate, WxPayBillTypeEnum billType) {
         this.bill_date = new SimpleDateFormat("yyyyMMdd").format(billDate);
         this.bill_type = billType.name();
+    }
+
+    public String getBill_date() {
+        return bill_date;
+    }
+
+    public void setBill_date(String bill_date) {
+        this.bill_date = bill_date;
+    }
+
+    public String getBill_type() {
+        return bill_type;
+    }
+
+    public void setBill_type(String bill_type) {
+        this.bill_type = bill_type;
+    }
+
+    public String getTar_type() {
+        return tar_type;
+    }
+
+    public void setTar_type(String tar_type) {
+        this.tar_type = tar_type;
     }
 }

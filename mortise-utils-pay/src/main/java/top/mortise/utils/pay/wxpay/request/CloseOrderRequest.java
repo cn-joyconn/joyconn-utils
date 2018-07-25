@@ -1,14 +1,12 @@
 package top.mortise.utils.pay.wxpay.request;
 
-import lombok.Getter;
-import lombok.Setter;
+
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-@Getter
-@Setter
+
 public class CloseOrderRequest {
 
     /**
@@ -18,4 +16,12 @@ public class CloseOrderRequest {
     @Length(max = 32, message = "商户系统内部订单号out_trade_no限32个字符")
     @NotNull(message = "商户系统内部订单号不能为空")
     private String out_trade_no;
+
+    public String getOut_trade_no() {
+        return out_trade_no;
+    }
+
+    public void setOut_trade_no(String out_trade_no) {
+        this.out_trade_no = out_trade_no;
+    }
 }

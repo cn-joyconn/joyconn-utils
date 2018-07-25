@@ -1,7 +1,8 @@
 package top.mortise.utils.pay.wxpay.model;
 
-import com.google.common.collect.Lists;
 
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public class CouponRefund {
     private Integer coupon_refund_fee;
 
     public static List<CouponRefund> parse(Map<String, String> responseParamMap) {
-        List<CouponRefund> couponRefundList = Lists.newArrayList();
+        List<CouponRefund> couponRefundList = new ArrayList<>();
         if (responseParamMap.containsKey("coupon_refund_count")) {
             int coupon_refund_count = Integer.valueOf(responseParamMap.get("coupon_refund_count"));
             for (int i = 0; i < coupon_refund_count; i++) {
