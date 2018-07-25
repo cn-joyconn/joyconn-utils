@@ -16,6 +16,7 @@
         <module>mortise-utils-pichelper</module>
         <module>mortise-utils-VerifyCode</module>
         <module>mortise-utils-webApiResult</module>
+        <module>mortise-utils-pay</module>
     </modules>
     <parent>
         <groupId>top.mortise</groupId>

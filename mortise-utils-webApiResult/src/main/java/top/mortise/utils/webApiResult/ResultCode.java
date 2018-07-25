@@ -39,7 +39,11 @@ public enum ResultCode {
     @ApiModelProperty(value = "字段重复")
     FiledRepeat ,
     @ApiModelProperty(value = "参数签名验证失败")
-    VerifyFail
+    VerifyFail ,
+    @ApiModelProperty(value = "余额不足")
+    CreditNotEnough,
+    @ApiModelProperty(value = "商品已失效")
+    GoodsInvalid
 
 
 }

@@ -43,7 +43,17 @@ public class HttpRequestUtil {
     static  String[] WP = { "Windows Phone" };
     /// <summary>微信
     /// </summary>
-    static  String[] WX = { "micromessenger","wechat" };
+    static  String[] WX = { "micromessenger","wechat","miniprogram" };
+    /// <summary>微信浏览器
+    /// </summary>
+    static  String[] WXBrowswr = { "micromessenger","wechat" };
+    /// <summary>微信小程序
+    /// </summary>
+    static  String[] WXMiniApp = { "miniprogram" };
+
+    /// <summary>支付宝
+    /// </summary>
+    static  String[] alipayclient = { "alipayclient"};
     //endregion
 
 
@@ -71,8 +81,10 @@ public class HttpRequestUtil {
             for(String s : WP){
                 moblieList.add(s.toLowerCase());
             }
-
-            for(String s : WX){
+            for(String s : WP){
+                moblieList.add(s.toLowerCase());
+            }
+            for(String s : alipayclient){
                 moblieList.add(s.toLowerCase());
             }
             if (pcList.parallelStream().anyMatch(source -> userAgent.indexOf(source) > -1))//判断是否是pc端
