@@ -6,7 +6,10 @@ import com.github.wxpay.sdk.WXPayUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.beans.BeanMap;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import top.mortise.utils.pay.wxpay.autoconfigure.MyWxPayConfig;
 import top.mortise.utils.pay.wxpay.autoconfigure.WxPayProperties;
 import top.mortise.utils.pay.wxpay.model.Coupon;
@@ -18,18 +21,19 @@ import top.mortise.utils.pay.wxpay.response.*;
 import java.util.HashMap;
 import java.util.Map;
 
-
+@Service
 public class WxPayService {
 
-    private final WXPay wxPay;
+    private  WXPay wxPay;
 
-    private final WxPayProperties wxPayProperties;
-     /**
- * 将对象装换为map
- *
- * @param bean
- * @return
- */
+
+    private  WxPayProperties wxPayProperties;
+    /**
+     * 将对象装换为map
+     *
+     * @param bean
+     * @return
+     */
      private static <T> Map<String, Object> beanToMap(T bean) {
     Map<String, Object> map = new HashMap<>();
     if (bean != null) {
@@ -42,15 +46,20 @@ public class WxPayService {
 }
 
 
-
-    public WxPayService(WxPayProperties wxPayProperties) throws Exception {
-        this.wxPayProperties = wxPayProperties;
-        this.wxPay = new WXPay(new MyWxPayConfig(wxPayProperties), wxPayProperties.getNotifyUrl(), wxPayProperties.isAutoReport(), wxPayProperties.isUseSandbox());
-        this.wxPay.checkWXPayConfig();
-        if (StringUtils.isBlank(wxPayProperties.getNotifyUrl())) {
-            throw new Exception("notifyUrl in config is empty");
-        }
+    @Autowired
+    public WxPayService(WxPayProperties wxPayProperties)   {
+         try {
+             this.wxPayProperties = wxPayProperties;
+             this.wxPay = new WXPay(new MyWxPayConfig(wxPayProperties), wxPayProperties.getNotifyUrl(), wxPayProperties.isAutoReport(), wxPayProperties.isUseSandbox());
+             this.wxPay.checkWXPayConfig();
+             if (StringUtils.isBlank(wxPayProperties.getNotifyUrl())) {
+                 throw new Exception("notifyUrl in config is empty");
+             }
+         }catch (Exception ex){
+             getLogger().error(ex.getMessage());
+         }
     }
+
 
     public WXPay getWxPay() {
         return wxPay;
@@ -370,11 +379,11 @@ public class WxPayService {
      * @return
      * @throws Exception
      */
-    public boolean isPayResultNotifySignatureValid(Map<String, Object> reqData) throws Exception {
+    public boolean isPayResultNotifySignatureValid(Map<String, String> reqData) throws Exception {
         Map<String, String> data =new HashMap<>();
-        for (Map.Entry<String, Object> entry : reqData.entrySet()) {
+        for (Map.Entry<String, String> entry : reqData.entrySet()) {
             if (entry.getValue() != null) {
-                data.put(entry.getKey(), entry.getValue().toString());
+                data.put(entry.getKey(), entry.getValue());
             }
         }
         return wxPay.isPayResultNotifySignatureValid(data);

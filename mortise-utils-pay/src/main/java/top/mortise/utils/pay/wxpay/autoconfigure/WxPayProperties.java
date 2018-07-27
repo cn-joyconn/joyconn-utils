@@ -3,8 +3,10 @@ package top.mortise.utils.pay.wxpay.autoconfigure;
 
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-
+@Service
 @ConfigurationProperties(prefix = "pay.wxpay")
 public class WxPayProperties {
 

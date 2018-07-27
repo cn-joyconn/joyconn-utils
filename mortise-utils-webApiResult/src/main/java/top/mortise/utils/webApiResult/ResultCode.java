@@ -43,7 +43,9 @@ public enum ResultCode {
     @ApiModelProperty(value = "余额不足")
     CreditNotEnough,
     @ApiModelProperty(value = "商品已失效")
-    GoodsInvalid
+    GoodsInvalid,
+    @ApiModelProperty(value = "支付失败")
+    PayError
 
 
 }

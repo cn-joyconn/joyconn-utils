@@ -4,11 +4,15 @@ import com.github.wxpay.sdk.IWXPayDomain;
 import com.github.wxpay.sdk.WXPayConfig;
 
 import java.io.InputStream;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MyWxPayConfig extends WXPayConfig {
 
-    private WxPayProperties wxPayProperties;
+    private static Lock lock =new ReentrantLock();
+    private static InputStream certStream;
 
+    private WxPayProperties wxPayProperties;
     private IWXPayDomain wxPayDomain;
 
     public MyWxPayConfig(WxPayProperties wxPayProperties) {
@@ -33,7 +37,19 @@ public class MyWxPayConfig extends WXPayConfig {
 
     @Override
     public InputStream getCertStream() {
-        return this.getClass().getResourceAsStream(wxPayProperties.getCertFile());
+        if(certStream==null){
+            lock.lock();
+            try{
+                if(certStream==null) {
+                    certStream = this.getClass().getResourceAsStream(wxPayProperties.getCertFile());
+                }
+            }catch (Exception ex){
+
+            }finally {
+                lock.unlock();
+            }
+        }
+        return certStream;
     }
 
     @Override

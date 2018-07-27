@@ -99,6 +99,20 @@ public class HttpRequestUtil {
         }
         return 1;
     }
+
+    /**
+     * 获取客户端Ip
+     * @param request
+     */
+    public static String GetClientIp(HttpServletRequest request){
+        String ips = request.getHeader("X-Forwarded-For");
+        if(ips!=null&&!ips.equals("")){
+            String[] ipArr = ips.split(",");
+            return ipArr[0];
+        }else{
+            return  request.getRemoteAddr();
+        }
+    }
     /**
      * 是否利用cookie
      * @param request
