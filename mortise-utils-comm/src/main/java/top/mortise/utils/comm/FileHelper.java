@@ -59,6 +59,13 @@ public class FileHelper {
      */
     public static String readAllStrFile(String fileName) {
 
+        return readAllStrFile(fileName,false);
+    }
+    /**
+     * 以行为单位读取文件，常用于读面向行的格式化文件
+     */
+    public static String readAllStrFile(String fileName,boolean lineFee) {
+
         File file =null;// new File(fileName);
         StringBuffer sb = new StringBuffer();
         BufferedReader reader = null;
@@ -70,7 +77,11 @@ public class FileHelper {
                 int line = 1;
                 // 一次读入一行，直到读入null为文件结束
                 while ((tempString = reader.readLine()) != null) {
+                    if(lineFee&&line>1){
+                        sb.append("\n");
+                    }
                     sb.append(tempString);
+                    line++;
                 }
                 reader.close();
             }
@@ -86,7 +97,6 @@ public class FileHelper {
         }
         return sb.toString();
     }
-
 
     /**
      * 追加文件：使用FileWriter
