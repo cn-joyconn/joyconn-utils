@@ -57,14 +57,7 @@ public class FileHelper {
     /**
      * 以行为单位读取文件，常用于读面向行的格式化文件
      */
-    public static String readAllStrFile(String fileName) {
-
-        return readAllStrFile(fileName,false);
-    }
-    /**
-     * 以行为单位读取文件，常用于读面向行的格式化文件
-     */
-    public static String readAllStrFile(String fileName,boolean lineFee) {
+    public static String readAllStrByLineFile(String fileName) {
 
         File file =null;// new File(fileName);
         StringBuffer sb = new StringBuffer();
@@ -77,9 +70,6 @@ public class FileHelper {
                 int line = 1;
                 // 一次读入一行，直到读入null为文件结束
                 while ((tempString = reader.readLine()) != null) {
-                    if(lineFee&&line>1){
-                        sb.append("\n");
-                    }
                     sb.append(tempString);
                     line++;
                 }
@@ -98,6 +88,34 @@ public class FileHelper {
         return sb.toString();
     }
 
+    /**
+     * 以行为单位读取文件，常用于读面向行的格式化文件
+     */
+    public static String readStrFromFile(String fileName) {
+
+        String encoding = "UTF-8";
+        File file = new File(fileName);
+        Long filelength = file.length();
+        byte[] filecontent = new byte[filelength.intValue()];
+        try {
+            FileInputStream in = new FileInputStream(file);
+            in.read(filecontent);
+            in.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            return new String(filecontent, encoding);
+        } catch (UnsupportedEncodingException e) {
+            System.err.println("The OS does not support " + encoding);
+            e.printStackTrace();
+            return null;
+        }
+
+
+    }
     /**
      * 追加文件：使用FileWriter
      */

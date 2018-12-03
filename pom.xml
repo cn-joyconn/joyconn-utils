@@ -17,6 +17,7 @@
         <module>mortise-utils-VerifyCode</module>
         <module>mortise-utils-webApiResult</module>
         <module>mortise-utils-pay</module>
+        <module>mortise-utils-QRCodeUtil</module>
     </modules>
     <parent>
         <groupId>top.mortise</groupId>
