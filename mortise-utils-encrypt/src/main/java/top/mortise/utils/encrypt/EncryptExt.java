@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 public class EncryptExt {
     //静态方法，便于作为工具类
     // 全局数组
-    private final static String[] strDigits = { "0", "1", "2", "3", "4", "5",
+    private final static String[] STR_DIGITS = { "0", "1", "2", "3", "4", "5",
             "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" };
 
 
@@ -21,7 +21,7 @@ public class EncryptExt {
         }
         int iD1 = iRet / 16;
         int iD2 = iRet % 16;
-        return strDigits[iD1] + strDigits[iD2];
+        return STR_DIGITS[iD1] + STR_DIGITS[iD2];
     }
 
     // 返回形式只为数字
@@ -43,7 +43,7 @@ public class EncryptExt {
         return sBuffer.toString();
     }
 
-    public static String GetMd5Code(String strObj) {
+    public static String getMd5Code(String strObj) {
         String resultString = null;
         try {
             resultString = new String(strObj);

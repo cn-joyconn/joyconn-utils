@@ -2,7 +2,7 @@
  * Created by Eric.Zhang on 2017/3/13.
  */
 package top.mortise.utils.uniqueID;
-import top.mortise.utils.encrypt.AESUtils;
+import top.mortise.utils.encrypt.AesUtils;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -60,27 +60,27 @@ public class LoginTokenID implements  Serializable{
 
         try
         {
-            tokenStr = AESUtils.decryptStr(tokenStr,token_ekey);
+            tokenStr = AesUtils.decryptStr(tokenStr,token_ekey);
         }
         catch (Exception e)
         {
             return;
         }
-        String[] _stemp = tokenStr.split("\f" );
+        String[] stemp = tokenStr.split("\f" );
         try
         {
-            if (_stemp.length == 4)
+            if (stemp.length == 4)
             {
-                uid = _stemp[0];
-                pwd = _stemp[1];
-                uniqueObjectID = new top.mortise.utils.uniqueID.DBObjectID(_stemp[2]);
-                timestamp = Integer.parseInt(_stemp[3]);
+                uid = stemp[0];
+                pwd = stemp[1];
+                uniqueObjectID = new top.mortise.utils.uniqueID.DBObjectID(stemp[2]);
+                timestamp = Integer.parseInt(stemp[3]);
             }
-            else if (_stemp.length == 3)
+            else if (stemp.length == 3)
             {
-                uid = _stemp[0];
-                pwd = _stemp[1];
-                uniqueObjectID = new top.mortise.utils.uniqueID.DBObjectID(_stemp[2]);
+                uid = stemp[0];
+                pwd = stemp[1];
+                uniqueObjectID = new top.mortise.utils.uniqueID.DBObjectID(stemp[2]);
                 timestamp = uniqueObjectID.getTimestamp();//.GetTimestampFromDateTime(DateTime.UtcNow);
             }
 
@@ -140,7 +140,7 @@ public class LoginTokenID implements  Serializable{
         String result="";
         try{
             String temp=getUid() + "\f" + getPwd() + "\f" + getUniqueObjectID().toString() + "\f" + getTimestamp();
-            result= AESUtils.encryptStr(temp,token_ekey );
+            result= AesUtils.encryptStr(temp,token_ekey );
         }
         catch (Exception e){
 

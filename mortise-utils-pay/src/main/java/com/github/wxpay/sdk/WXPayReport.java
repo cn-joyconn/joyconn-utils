@@ -21,12 +21,12 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * 交易保障
+ * @author
  */
 public class WXPayReport {
 
     private static final String REPORT_URL = "http://report.mch.weixin.qq.com/wxpay/report/default";
     private static final int DEFAULT_CONNECT_TIMEOUT_MS = 6 * 1000;
-    // private static final String REPORT_URL = "http://127.0.0.1:5000/test";
     private static final int DEFAULT_READ_TIMEOUT_MS = 8 * 1000;
     private volatile static WXPayReport INSTANCE;
     private LinkedBlockingQueue<String> reportMsgQueue = null;
@@ -39,6 +39,7 @@ public class WXPayReport {
 
         // 添加处理线程
         executorService = Executors.newFixedThreadPool(config.getReportWorkerNum(), new ThreadFactory() {
+            @Override
             public Thread newThread(Runnable r) {
                 Thread t = Executors.defaultThreadFactory().newThread(r);
                 t.setDaemon(true);
@@ -50,6 +51,7 @@ public class WXPayReport {
             WXPayUtil.getLogger().info("report worker num: {}", config.getReportWorkerNum());
             for (int i = 0; i < config.getReportWorkerNum(); ++i) {
                 executorService.execute(new Runnable() {
+                    @Override
                     public void run() {
                         while (true) {
                             // 先用 take 获取数据
@@ -58,7 +60,8 @@ public class WXPayReport {
                                 String firstMsg = reportMsgQueue.take();
                                 WXPayUtil.getLogger().info("get first report msg: {}", firstMsg);
                                 String msg = null;
-                                sb.append(firstMsg); //会阻塞至有消息
+                                //会阻塞至有消息
+                                sb.append(firstMsg);
                                 int remainNum = config.getReportBatchSize() - 1;
                                 for (int j = 0; j < remainNum; ++j) {
                                     WXPayUtil.getLogger().info("try get remain report msg");
@@ -164,6 +167,7 @@ public class WXPayReport {
     @Deprecated
     private void reportAsync(final String data) throws Exception {
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 try {
                     httpRequest(data, DEFAULT_CONNECT_TIMEOUT_MS, DEFAULT_READ_TIMEOUT_MS);
@@ -180,21 +184,33 @@ public class WXPayReport {
          * 布尔变量使用int。0为false， 1为true。
          */
 
-        // 基本信息
+        /**
+         基本信息
+          */
         private String version = "v1";
         private String sdk = WXPayConstants.WXPAYSDK_VERSION;
-        private String uuid;  // 交易的标识
-        private long timestamp;   // 上报时的时间戳，单位秒
-        private long elapsedTimeMillis; // 耗时，单位 毫秒
+        // 交易的标识
+        private String uuid;
+        // 上报时的时间戳，单位秒
+        private long timestamp;
+        // 耗时，单位 毫秒
+        private long elapsedTimeMillis;
 
         // 针对主域名
-        private String firstDomain;  // 第1次请求的域名
-        private boolean primaryDomain; //是否主域名
-        private int firstConnectTimeoutMillis;  // 第1次请求设置的连接超时时间，单位 毫秒
-        private int firstReadTimeoutMillis;  // 第1次请求设置的读写超时时间，单位 毫秒
-        private int firstHasDnsError;  // 第1次请求是否出现dns问题
-        private int firstHasConnectTimeout; // 第1次请求是否出现连接超时
-        private int firstHasReadTimeout; // 第1次请求是否出现连接超时
+        // 第1次请求的域名
+        private String firstDomain;
+        //是否主域名
+        private boolean primaryDomain;
+        // 第1次请求设置的连接超时时间，单位 毫秒
+        private int firstConnectTimeoutMillis;
+        // 第1次请求设置的读写超时时间，单位 毫秒
+        private int firstReadTimeoutMillis;
+        // 第1次请求是否出现dns问题
+        private int firstHasDnsError;
+        // 第1次请求是否出现连接超时
+        private int firstHasConnectTimeout;
+        // 第1次请求是否出现连接超时
+        private int firstHasReadTimeout;
 
         public ReportInfo(String uuid, long timestamp, long elapsedTimeMillis, String firstDomain, boolean primaryDomain, int firstConnectTimeoutMillis, int firstReadTimeoutMillis, boolean firstHasDnsError, boolean firstHasConnectTimeout, boolean firstHasReadTimeout) {
             this.uuid = uuid;

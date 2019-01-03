@@ -115,8 +115,8 @@ public class ImageUtil {
     public static BufferedImage resizeImageByWidth(
             final BufferedImage bufferedImage,
             final int width) {
-        int _width = bufferedImage.getWidth();
-        int height = bufferedImage.getHeight() * width / _width;
+        int newWidth = bufferedImage.getWidth();
+        int height = bufferedImage.getHeight() * width / newWidth;
         return  resizeImage(bufferedImage,width,height);
     }
     /**
@@ -128,8 +128,8 @@ public class ImageUtil {
     public static BufferedImage resizeImageByHeight(
             final BufferedImage bufferedImage,
             final int height) {
-        int _height = bufferedImage.getHeight();
-        int width = bufferedImage.getWidth()* height / _height;
+        int newHeight = bufferedImage.getHeight();
+        int width = bufferedImage.getWidth()* height / newHeight;
         return  resizeImage(bufferedImage,width,height);
     }
     /**

@@ -25,7 +25,6 @@ public class Base64Utils {
      * </p>
      *
      * @param base64
-     * @return
      * @throws Exception
      */
     public static byte[] decode(String base64) throws Exception {
@@ -38,7 +37,6 @@ public class Base64Utils {
      * </p>
      *
      * @param bytes
-     * @return
      * @throws Exception
      */
     public static String encode(byte[] bytes) throws Exception {
@@ -54,7 +52,6 @@ public class Base64Utils {
      * </p>
      *
      * @param filePath 文件绝对路径
-     * @return
      * @throws Exception
      */
     public static String encodeFile(String filePath) throws Exception {
@@ -82,7 +79,6 @@ public class Base64Utils {
      * </p>
      *
      * @param filePath 文件路径
-     * @return
      * @throws Exception
      */
     public static byte[] fileToByte(String filePath) throws Exception {

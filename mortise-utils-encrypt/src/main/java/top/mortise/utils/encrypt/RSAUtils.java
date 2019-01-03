@@ -73,7 +73,6 @@ public class RSAUtils {
      * @param privateKey
      *            私钥(BASE64编码)
      *
-     * @return
      * @throws Exception
      */
     public static String sign(byte[] data, String privateKey) throws Exception {
@@ -99,7 +98,6 @@ public class RSAUtils {
      * @param sign
      *            数字签名
      *
-     * @return
      * @throws Exception
      *
      */
@@ -124,7 +122,6 @@ public class RSAUtils {
      *            已加密数据
      * @param privateKey
      *            私钥(BASE64编码)
-     * @return
      * @throws Exception
      */
     public static byte[] decryptByPrivateKey(byte[] encryptedData,
@@ -167,7 +164,6 @@ public class RSAUtils {
      *            已加密数据
      * @param publicKey
      *            公钥(BASE64编码)
-     * @return
      * @throws Exception
      */
     public static byte[] decryptByPublicKey(byte[] encryptedData,
@@ -210,7 +206,6 @@ public class RSAUtils {
      *            源数据
      * @param publicKey
      *            公钥(BASE64编码)
-     * @return
      * @throws Exception
      */
     public static byte[] encryptByPublicKey(byte[] data, String publicKey)
@@ -253,7 +248,6 @@ public class RSAUtils {
      *            源数据
      * @param privateKey
      *            私钥(BASE64编码)
-     * @return
      * @throws Exception
      */
     public static byte[] encryptByPrivateKey(byte[] data, String privateKey)
@@ -292,7 +286,6 @@ public class RSAUtils {
      *
      * @param keyMap
      *            密钥对
-     * @return
      * @throws Exception
      */
     public static String getPrivateKey(Map<String, Object> keyMap)
@@ -306,9 +299,7 @@ public class RSAUtils {
      * 获取公钥
      * </p>
      *
-     * @param keyMap
-     *            密钥对
-     * @return
+     * @param keyMap   密钥对
      * @throws Exception
      */
     public static String getPublicKey(Map<String, Object> keyMap)

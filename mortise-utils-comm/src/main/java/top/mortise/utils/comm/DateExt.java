@@ -14,7 +14,7 @@ public class DateExt {
      * @param date
      * @return str
      */
-    public static String DateToStr(Date date) {
+    public static String dateToStr(Date date) {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String str = format.format(date);
@@ -27,7 +27,7 @@ public class DateExt {
      * @param str
      * @return date
      */
-    public static Date StrToDate(String str) {
+    public static Date strToDate(String str) {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = null;
@@ -39,7 +39,7 @@ public class DateExt {
         return date;
     }
 
-    public static String GetNowDate(){
+    public static String getNowDate(){
         Date dNow = new Date( );
         SimpleDateFormat ft =
                 new SimpleDateFormat ("yyyy-MM-dd");

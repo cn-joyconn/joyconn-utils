@@ -62,7 +62,7 @@ public class HttpRequestUtil {
      * @param request
      * @return 1:pc/未知   ， 0:mobile
      */
-    public static int GetClientType(HttpServletRequest request)
+    public static int getClientType(HttpServletRequest request)
     {
         String userAgent = request.getHeader( "USER-AGENT" ).toLowerCase();
         if (userAgent != null)
@@ -104,9 +104,9 @@ public class HttpRequestUtil {
      * 获取客户端Ip
      * @param request
      */
-    public static String GetClientIp(HttpServletRequest request){
+    public static String getClientIp(HttpServletRequest request){
         String ips = request.getHeader("X-Forwarded-For");
-        if(ips!=null&&!ips.equals("")){
+        if(ips!=null&&!"".equals(ips)){
             String[] ipArr = ips.split(",");
             return ipArr[0];
         }else{
@@ -152,8 +152,9 @@ public class HttpRequestUtil {
         String response = null;
         HttpMethod method = new GetMethod(url);
         try {
-            if (queryString!=null&& !queryString.equals(""))
+            if (queryString!=null&& !"".equals(queryString)) {
                 method.setQueryString(URIUtil.encodeQuery(queryString));
+            }
             client.executeMethod(method);
             if (method.getStatusCode() == HttpStatus.SC_OK) {
                 response = method.getResponseBodyAsString();

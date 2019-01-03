@@ -57,6 +57,7 @@ public class FileHelper {
     /**
      * 以行为单位读取文件，常用于读面向行的格式化文件
      */
+    @Deprecated
     public static String readAllStrByLineFile(String fileName) {
 
         File file =null;// new File(fileName);
@@ -87,7 +88,39 @@ public class FileHelper {
         }
         return sb.toString();
     }
+    /**
+     * 以行为单位读取文件，常用于读面向行的格式化文件
+     */
+    public static String readAllStrByLineFile(String fileName,String charset) {
 
+        File file =null;// new File(fileName);
+        StringBuffer sb = new StringBuffer();
+        BufferedReader reader = null;
+        try {
+            file=new File(fileName);
+            if(file.exists()){
+                reader=new BufferedReader(new InputStreamReader(new FileInputStream(file),charset));
+                String tempString = null;
+                int line = 1;
+                // 一次读入一行，直到读入null为文件结束
+                while ((tempString = reader.readLine()) != null) {
+                    sb.append(tempString);
+                    line++;
+                }
+                reader.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+            }
+        }
+        return sb.toString();
+    }
     /**
      * 以行为单位读取文件，常用于读面向行的格式化文件
      */
@@ -119,6 +152,7 @@ public class FileHelper {
     /**
      * 追加文件：使用FileWriter
      */
+    @Deprecated
     public static void appendString(String fileName, String content) {
         try {
             //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
@@ -136,6 +170,33 @@ public class FileHelper {
         try {
             //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
             FileWriter writer = new FileWriter(fileName, true);
+            writer.write(content);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * 追加文件：使用FileWriter
+     */
+    public static void writeFile(String fileName, String content,String charset) {
+        File file=new File(fileName);
+        if(!file.getParentFile().exists()){
+            file.getParentFile().mkdirs();
+        }
+        if(!file.exists())
+        {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        try {
+            //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
+            OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(fileName),charset);
+            BufferedWriter writer=new BufferedWriter(write);
             writer.write(content);
             writer.close();
         } catch (IOException e) {
@@ -234,8 +295,9 @@ public class FileHelper {
     public static boolean deleteDirectory(String dir) {
         try {
             // 如果dir不以文件分隔符结尾，自动添加文件分隔符
-            if (!dir.endsWith(File.separator))
+            if (!dir.endsWith(File.separator)){
                 dir = dir + File.separator;
+            }
             File dirFile = new File(dir);
             // 如果dir对应的文件不存在，或者不是一个目录，则退出
             if ((!dirFile.exists()) || (!dirFile.isDirectory())) {

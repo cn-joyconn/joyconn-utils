@@ -18,15 +18,15 @@ import java.security.Key;
 import java.security.SecureRandom;
 
 
-public class DESUtil {
+public class DesUtil {
 
     Key key ;
 
-    public DESUtil() {
+    public DesUtil() {
 
     }
 
-    public DESUtil(String str) {
+    public DesUtil(String str) {
         setKey(str); // 生成密匙
     }
 
@@ -43,10 +43,10 @@ public class DESUtil {
      */
     public void setKey(String strKey) {
         try {
-            KeyGenerator _generator = KeyGenerator.getInstance ( "DES" );
-            _generator.init( new SecureRandom(strKey.getBytes()));
-            this . key = _generator.generateKey();
-            _generator = null ;
+            KeyGenerator generator = KeyGenerator.getInstance ( "DES" );
+            generator.init( new SecureRandom(strKey.getBytes()));
+            this . key = generator.generateKey();
+            generator = null ;
         } catch (Exception e) {
             throw new RuntimeException(
                     "Error initializing SqlMap class. Cause: " + e);
@@ -80,7 +80,6 @@ public class DESUtil {
      * 解密 以 String 密文输入 ,String 明文输出
      *
      * @param strMi
-     * @return
      */
     public String decryptStr(String strMi) {
         BASE64Decoder base64De = new BASE64Decoder();
@@ -106,7 +105,6 @@ public class DESUtil {
      * 加密以 byte[] 明文输入 ,byte[] 密文输出
      *
      * @param byteS
-     * @return
      */
     private byte [] encryptByte( byte [] byteS) {
         byte [] byteFina = null ;
@@ -128,7 +126,6 @@ public class DESUtil {
      * 解密以 byte[] 密文输入 , 以 byte[] 明文输出
      *
      * @param byteD
-     * @return
      */
     private byte [] decryptByte( byte [] byteD) {
         Cipher cipher;

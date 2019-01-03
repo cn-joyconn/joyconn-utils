@@ -202,7 +202,9 @@ public class WXPayUtil {
                 continue;
             }
             if (data.get(k).trim().length() > 0) // 参数值为空，则不参与签名
+            {
                 sb.append(k).append("=").append(data.get(k).trim()).append("&");
+            }
         }
         sb.append("key=").append(key);
         if (SignType.MD5.equals(signType)) {

@@ -24,5 +24,71 @@
         <artifactId>top-mortise</artifactId>
         <version>2.0.2.RELEASE</version>
     </parent>
+<build>
+    <resources>
+        <resource>
+            <directory>${basedir}/src/main/java</directory>
+            <includes>
+                <include>**/*.xml</include>
+                <include>**/*.properties</include>
+            </includes>
+        </resource>
+        <resource>
+            <directory>${basedir}/src/main/resources</directory>
+        </resource>
+    </resources>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.5.1</version>
+            <configuration>
+                <source>${java.version}</source>
+                <target>${java.version}</target>
+                <testSource>${java.version}</testSource>
+                <testTarget>${java.version}</testTarget>
+            </configuration>
+        </plugin>
+        <!--配置生成Javadoc包-->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.10.4</version>
+            <configuration>
+                <encoding>UTF-8</encoding>
+                <aggregate>true</aggregate>
+                <charset>UTF-8</charset>
+                <docencoding>UTF-8</docencoding>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>attach-javadocs</id>
+                    <goals>
+                        <goal>jar</goal>
+                    </goals>
+                    <configuration>
+                        <additionalparam>-Xdoclint:none</additionalparam>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+        <!--配置生成源码包-->
+        <!--<plugin>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-source-plugin</artifactId>-->
+            <!--<version>3.0.1</version>-->
+            <!--<executions>-->
+                <!--<execution>-->
+                    <!--<id>attach-sources</id>-->
+                    <!--<goals>-->
+                        <!--<goal>jar</goal>-->
+                    <!--</goals>-->
+                <!--</execution>-->
+            <!--</executions>-->
+        <!--</plugin>-->
 
+
+
+    </plugins>
+</build>
 </project>

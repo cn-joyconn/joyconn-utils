@@ -8,6 +8,9 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @ApiModel
 public enum ResultCode {
+    /**
+     * 登录成功
+     */
     @ApiModelProperty(value = "登录成功")
     LoginSucess ,
     @ApiModelProperty(value = "操作成功")
@@ -22,6 +25,10 @@ public enum ResultCode {
     LoginPassError ,
     @ApiModelProperty(value = "登录失败")
     LoginFail ,
+    @ApiModelProperty(value = "令牌不存在")
+    TokenNotExist ,
+    @ApiModelProperty(value = "令牌错误")
+    TokenFail ,
     @ApiModelProperty(value = "操作失败")
     OperateFail ,
     @ApiModelProperty(value = "验证码错误")

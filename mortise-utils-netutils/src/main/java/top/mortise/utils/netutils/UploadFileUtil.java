@@ -28,14 +28,19 @@ public class UploadFileUtil {
     @Value("${mortise.uploadfile.save.uploadRemote}")
     private  String uploadRemote;
     // 临时文件目录
-    @Value("${mortise.uploadfile.save.temppath}")private String _tempPath;
-    @Value("${mortise.uploadfile.save.root}") private String _uploadRoot;
+    @Value("${mortise.uploadfile.save.temppath}")
+    private String saveTempPath;
+    @Value("${mortise.uploadfile.save.root}")
+    private String saveUploadRoot;
 
-    @Value("${mortise.uploadfile.visitDomain}") private String visitDomain;
+    @Value("${mortise.uploadfile.visitDomain}")
+    private String visitDomain;
     //远程目录
-    @Value("${mortise.uploadfile.save.remoteUploadUrl}")private String remoteUploadUrl;
+    @Value("${mortise.uploadfile.save.remoteUploadUrl}")
+    private String remoteUploadUrl;
     //远程目录
-    @Value("${mortise.uploadfile.save.remoteUploadkey}")private String remoteUploadkey;
+    @Value("${mortise.uploadfile.save.remoteUploadkey}")
+    private String remoteUploadkey;
 
     String tempPath;
     String uploadRoot;
@@ -44,16 +49,16 @@ public class UploadFileUtil {
 
     private void init(HttpServletRequest request) throws ServletException, IOException {
 
-        if (uploadRemote.equals("false")) {
+        if ("false".equals(uploadRemote)) {
             File file = ResourceUtils.getFile("classpath:static");
             String webDir= file.getCanonicalPath();
            // String webDir=this.getClass().getResource("/").getPath()+"/static";
-            tempPath= (webDir+_tempPath).replace("//","/");
-            uploadRoot=(webDir+_uploadRoot).replace("//","/");
+            tempPath= (webDir+saveTempPath).replace("//","/");
+            uploadRoot=(webDir+saveUploadRoot).replace("//","/");
 
         }else{
-            tempPath = _tempPath;
-            uploadRoot=_uploadRoot;
+            tempPath = saveTempPath;
+            uploadRoot=saveUploadRoot;
         }
         File uploadFile = new File(uploadRoot);
         if (!uploadFile.exists()) {
@@ -64,14 +69,14 @@ public class UploadFileUtil {
             tempPathFile.mkdirs();
         }
     }
-    public String SaveFileByMultiFlie(MultipartFile file, HttpServletRequest request, String uploadEnum)
+    public String saveFileByMultiFlie(MultipartFile file, HttpServletRequest request, String uploadEnum)
             throws ServletException, IOException {
 
         //init();
-        if(uploadRemote.equals("false")){
-            return SaveFileByMultiLocal(file,uploadEnum,request);
+        if ("false".equals(uploadRemote)) {
+            return saveFileByMultiLocal(file,uploadEnum,request);
         }else {
-            return SaveFileByRemoteServer(file,uploadEnum,request);
+            return saveFileByRemoteServer(file,uploadEnum,request);
         }
     }
 
@@ -83,7 +88,7 @@ public class UploadFileUtil {
      * @throws ServletException
      * @throws IOException
      */
-    String SaveFileByMultiLocal(MultipartFile file, String uploadEnum,HttpServletRequest request)
+    String saveFileByMultiLocal(MultipartFile file, String uploadEnum,HttpServletRequest request)
             throws ServletException, IOException {
 
         init(request);
@@ -105,10 +110,10 @@ public class UploadFileUtil {
 
 
             String newFileName = new DBObjectID().toString() + suffixName;
-            String basicPath = "/"+uploadEnum+"/"+ DateExt.GetNowDate() + "/";
-            String _uploadPath=uploadRoot+basicPath;
-            _uploadPath=_uploadPath.replace("//","/");
-            String newFilePath = _uploadPath+ newFileName;
+            String basicPath = "/"+uploadEnum+"/"+ DateExt.getNowDate() + "/";
+            String newUploadPath=uploadRoot+basicPath;
+            newUploadPath=newUploadPath.replace("//","/");
+            String newFilePath = newUploadPath+ newFileName;
             try {
                 File dest = new File(newFilePath);
                 if (!dest.getParentFile().exists()) {
@@ -117,7 +122,7 @@ public class UploadFileUtil {
                 try {
                     file.transferTo(dest);
 
-                    String  returnUrl=(visitDomain+_uploadRoot+basicPath+"/"+newFileName).replace("//","/");
+                    String  returnUrl=(visitDomain+saveUploadRoot+basicPath+"/"+newFileName).replace("//","/");
                     return returnUrl;
                 } catch (IllegalStateException e) {
                     e.printStackTrace();
@@ -145,7 +150,7 @@ public class UploadFileUtil {
      * @throws ServletException
      * @throws IOException
      */
-    String SaveFileByRemoteServer( MultipartFile file,  String uploadEnum,HttpServletRequest request)throws ServletException, IOException{
+    String saveFileByRemoteServer( MultipartFile file,  String uploadEnum,HttpServletRequest request)throws ServletException, IOException{
         init(request);
         // Create a factory for disk-based file items
         DiskFileItemFactory factory = new DiskFileItemFactory();
@@ -161,7 +166,7 @@ public class UploadFileUtil {
             String fullFileName = file.getOriginalFilename();
 
             try {
-                Map<String, String> textMap = new HashMap<String, String>();
+                Map<String, String> textMap = new HashMap<>(2);
                 textMap.put("uploadEnum", uploadEnum.toString());
                 textMap.put("uploadKey", remoteUploadkey);
                 String proff=file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
@@ -185,38 +190,39 @@ public class UploadFileUtil {
 
     /**
      * base64保存成文件
-     * @param Data base64内容
+     * @param data base64内容
      * @param uploadEnum 保存类型，
      * @param fileType 文件类型：“.jpg”
      * @param request
      * @return
      * @throws Exception
      */
-    public String SaveStringFile(String Data, String uploadEnum,String fileType, HttpServletRequest request) throws Exception {
-        if(uploadRemote.equals("false")){
-            return SaveStringFileLocal(Data,uploadEnum,fileType,request);
+    public String saveStringFile(String data, String uploadEnum,String fileType, HttpServletRequest request) throws Exception {
+
+        if ("false".equals(uploadRemote)) {
+            return saveStringFileLocal(data,uploadEnum,fileType,request);
         }else{
-            return  SaveStringFileremote(Data,uploadEnum,fileType,request);
+            return  saveStringFileremote(data,uploadEnum,fileType,request);
         }
 
     }
 
-    String SaveStringFileLocal(String Data,  String uploadEnum,String fileType,HttpServletRequest request) throws Exception {
+    String saveStringFileLocal(String data,  String uploadEnum,String fileType,HttpServletRequest request) throws Exception {
         try {
             init(request);
-            byte[] filedata = Base64Utils.decode(Data);
+            byte[] filedata = Base64Utils.decode(data);
 
-            String _virPath=  _uploadRoot+ "/"+uploadEnum+"/"+ DateExt.GetNowDate() + "/";
-            _virPath=_virPath.replace("//","/");
-            String _uploadPath=uploadRoot+_virPath;
-            _uploadPath=_uploadPath.replace(_uploadRoot+_uploadRoot,_uploadRoot).replace("//","/");
-            File file_uploadPath = new File(_uploadPath);
-            if (!file_uploadPath.exists()) {
-                file_uploadPath.mkdirs();
+            String newVirPath=  saveUploadRoot+ "/"+uploadEnum+"/"+ DateExt.getNowDate() + "/";
+            newVirPath=newVirPath.replace("//","/");
+            String newUploadPath=uploadRoot+newVirPath;
+            newUploadPath=newUploadPath.replace(saveUploadRoot+saveUploadRoot,saveUploadRoot).replace("//","/");
+            File fileUploadPath = new File(newUploadPath);
+            if (!fileUploadPath.exists()) {
+                fileUploadPath.mkdirs();
             }
-            String _filename = new DBObjectID().toString();
-            _filename+= fileType;
-            String savefilename = _uploadPath+ _filename;
+            String newFilename = new DBObjectID().toString();
+            newFilename+= fileType;
+            String savefilename = newUploadPath+ newFilename;
             File file = new File(savefilename);
             FileOutputStream fos = new FileOutputStream(file);
 
@@ -227,7 +233,7 @@ public class UploadFileUtil {
             //为了节省IO流的开销，需要关闭
             fos.close();
 
-            return (_virPath + "/" + _filename).replace("//", "/");
+            return (newVirPath + "/" + newFilename).replace("//", "/");
         } catch (Exception ex) {
             LogHelper.logger().error("方法SaveStringFileLocal异常：" + ex.getMessage());
         }
@@ -236,16 +242,16 @@ public class UploadFileUtil {
     }
 
 
-    String SaveStringFileremote(String Data,  String uploadEnum,String fileType,HttpServletRequest request) throws Exception {
+    String saveStringFileremote(String data,  String uploadEnum,String fileType,HttpServletRequest request) throws Exception {
         try {
             init(request);
 
 
             String fullFileName = new DBObjectID().toString() + fileType;
-            byte[] filedata = Base64Utils.decode(Data);
+            byte[] filedata = Base64Utils.decode(data);
             InputStream inputStream = new ByteArrayInputStream(filedata);
             try {
-                Map<String, String> textMap = new HashMap<String, String>();
+                Map<String, String> textMap = new HashMap<>(2);
                 textMap.put("uploadEnum",uploadEnum);
                 textMap.put("uploadKey", remoteUploadkey);
                 String result =  formUpload(remoteUploadUrl,textMap,"file",fullFileName,inputStream,fileType);
@@ -277,7 +283,7 @@ public class UploadFileUtil {
     public static String formUpload(String urlStr, Map<String, String> textMap, String fileParamName, String fileName, InputStream fileStream, String fileType) {
         String res = "";
         HttpURLConnection conn = null;
-        String BOUNDARY = "---------------------------123821742118716"; //boundary就是request头和上传文件内容的分隔符
+        String boundary= "---------------------------123821742118716"; //boundary就是request头和上传文件内容的分隔符
         try {
             URL url = new URL(urlStr);
             conn = (HttpURLConnection) url.openConnection();
@@ -289,7 +295,7 @@ public class UploadFileUtil {
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Connection", "Keep-Alive");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)");
-            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
+            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             OutputStream out = new DataOutputStream(conn.getOutputStream());
             // text
             if (textMap != null) {
@@ -302,7 +308,7 @@ public class UploadFileUtil {
                     if (inputValue == null) {
                         continue;
                     }
-                    strBuf.append("\r\n").append("--").append(BOUNDARY).append("\r\n");
+                    strBuf.append("\r\n").append("--").append(boundary).append("\r\n");
                     strBuf.append("Content-Disposition: form-data; name=\"" + inputName + "\"\r\n\r\n");
                     strBuf.append(inputValue);
                 }
@@ -310,7 +316,7 @@ public class UploadFileUtil {
             }
 
             StringBuffer strBuf = new StringBuffer();
-            strBuf.append("\r\n").append("--").append(BOUNDARY).append("\r\n");
+            strBuf.append("\r\n").append("--").append(boundary).append("\r\n");
             strBuf.append("Content-Disposition: form-data; name=\"" + fileParamName + "\"; filename=\"" + fileName + "\"\r\n");
             strBuf.append("Content-Type:" + new Mime().getContentTypeByFileExt(fileType) + "\r\n\r\n");
             out.write(strBuf.toString().getBytes());
@@ -322,7 +328,7 @@ public class UploadFileUtil {
             }
             in.close();
 
-            byte[] endData = ("\r\n--" + BOUNDARY + "--\r\n").getBytes();
+            byte[] endData = ("\r\n--" + boundary + "--\r\n").getBytes();
             out.write(endData);
             out.flush();
             out.close();

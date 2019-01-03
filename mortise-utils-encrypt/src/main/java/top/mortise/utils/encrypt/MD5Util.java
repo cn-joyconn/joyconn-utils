@@ -36,16 +36,16 @@ public class MD5Util {
         StringBuilder stringbuilder = new StringBuilder();
         MessageDigest md5 = MessageDigest.getInstance("MD5");
         md5.update(encode.getBytes());
-        byte[] str_encoded = md5.digest();
-        for (int i = 0; i < str_encoded.length; i++) {
-            if ((str_encoded[i] & 0xff) < 0x10) {
+        byte[] strEncoded = md5.digest();
+        for (int i = 0; i < strEncoded.length; i++) {
+            if ((strEncoded[i] & 0xff) < 0x10) {
                 stringbuilder.append("0");
             }
-            stringbuilder.append(Long.toString(str_encoded[i] & 0xff, 16));
+            stringbuilder.append(Long.toString(strEncoded[i] & 0xff, 16));
         }
         return stringbuilder.toString();
     }
-    public String MD5(String s) {
+    public String md5(String s) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] bytes = md.digest(s.getBytes("utf-8"));
@@ -58,11 +58,11 @@ public class MD5Util {
 
     private static String toHex(byte[] bytes) {
 
-        final char[] HEX_DIGITS = "0123456789ABCDEF".toCharArray();
+        final char[] hexDigits = "0123456789ABCDEF".toCharArray();
         StringBuilder ret = new StringBuilder(bytes.length * 2);
         for (int i=0; i<bytes.length; i++) {
-            ret.append(HEX_DIGITS[(bytes[i] >> 4) & 0x0f]);
-            ret.append(HEX_DIGITS[bytes[i] & 0x0f]);
+            ret.append(hexDigits[(bytes[i] >> 4) & 0x0f]);
+            ret.append(hexDigits[bytes[i] & 0x0f]);
         }
         return ret.toString();
     }

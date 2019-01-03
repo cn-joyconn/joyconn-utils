@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Eric.Zhang on 2017/3/13.
+ * @author  Created by Eric.Zhang on 2017/3/13.
  */
 public class CookieUtils {
     /**
@@ -16,7 +16,7 @@ public class CookieUtils {
      * @return
      */
     public static Cookie getCookieByName(HttpServletRequest request, String name){
-        Map<String,Cookie> cookieMap = ReadCookieMap(request);
+        Map<String,Cookie> cookieMap = readCookieMap(request);
         if(cookieMap.containsKey(name)){
             Cookie cookie = (Cookie)cookieMap.get(name);
             return cookie;
@@ -40,8 +40,12 @@ public class CookieUtils {
         }else{
             cookie.setPath("/");
         }
-        if(maxAge>0)  cookie.setMaxAge(maxAge);
-        if(domain!=null&&domain!="") cookie.setDomain(domain);
+        if(maxAge>0) {
+            cookie.setMaxAge(maxAge);
+        }
+        if(domain!=null&&domain!="") {
+            cookie.setDomain(domain);
+        }
         response.addCookie(cookie);
     }
 
@@ -51,8 +55,8 @@ public class CookieUtils {
      * @param request
      * @return
      */
-    private static Map<String,Cookie> ReadCookieMap(HttpServletRequest request){
-        Map<String,Cookie> cookieMap = new HashMap<String,Cookie>();
+    private static Map<String,Cookie> readCookieMap(HttpServletRequest request){
+        Map<String,Cookie> cookieMap = new HashMap<>(4);
         Cookie[] cookies = request.getCookies();
         if(null!=cookies){
             for(Cookie cookie : cookies){
@@ -67,7 +71,7 @@ public class CookieUtils {
      * @param name  cookie名字
      */
     public static void delCookie(HttpServletRequest request, String name ){
-        Map<String,Cookie> cookieMap = ReadCookieMap(request);
+        Map<String,Cookie> cookieMap = readCookieMap(request);
         if(cookieMap.containsKey(name)){
             Cookie cookie = (Cookie)cookieMap.get(name);
             cookie.setMaxAge(0);

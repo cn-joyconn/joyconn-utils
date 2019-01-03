@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Created by Eric.Zhang on 2016/12/27.
- * 默认配置文件在./config/log4j.xml
+ * 默认配置文件在 ./config/log4j.xml
  */
 public class LogHelper {
 
@@ -14,14 +14,13 @@ public class LogHelper {
     /**
      * 自动匹配请求类名，生成logger对象，此处 logger name 值为 [className].[methodName]() Line: [fileLine]
      *
-     * @return
+     * @return Logger
      * @author Eriz.zsp
-     * @date 2016年12月28日 09:43:34
      */
     public static Logger logger() {
         // 最原始被调用的堆栈对象
         StackTraceElement caller = findCaller();
-        if (null == caller) return LoggerFactory.getLogger(LogHelper.class);
+        if (null == caller) {return LoggerFactory.getLogger(LogHelper.class);}
 
         Logger log = LoggerFactory.getLogger(caller.getClassName() + "." + caller.getMethodName() + "() Line: " + caller.getLineNumber());
 
@@ -31,13 +30,12 @@ public class LogHelper {
     /**
      * 自动匹配请求类名，生成logger对象，此处 logger name 值为 [className].[methodName]() Line: [fileLine]
      *
-     * @return
+     * @return Logger
      * @author Eriz.zsp
-     * @date 2016年12月28日 09:42:21
      */
-    public static Logger logger(String LogName) {
+    public static Logger logger(String logName) {
 
-        Logger log = LoggerFactory.getLogger(LogName);
+        Logger log = LoggerFactory.getLogger(logName);
         return log;
     }
 
@@ -45,14 +43,13 @@ public class LogHelper {
     /**
      * 获取最原始被调用的堆栈信息
      *
-     * @return
+     * @return StackTraceElement
      * @author Eriz.zsp
-     * @date 2016年12月28日 09:41:09
      */
     private static StackTraceElement findCaller() {
         // 获取堆栈信息
         StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
-        if (null == callStack) return null;
+        if (null == callStack) {return null;}
 
         // 最原始被调用的堆栈信息
         StackTraceElement caller = null;
