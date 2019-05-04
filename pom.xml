@@ -18,6 +18,8 @@
         <module>mortise-utils-webApiResult</module>
         <module>mortise-utils-pay</module>
         <module>mortise-utils-QRCodeUtil</module>
+        <module>mortise-utils-webutils</module>
+        <module>mortise-utils-datasource</module>
     </modules>
     <parent>
         <groupId>top.mortise</groupId>

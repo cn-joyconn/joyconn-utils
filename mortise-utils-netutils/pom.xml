@@ -11,7 +11,7 @@
 
     <groupId>top.mortise.utils</groupId>
     <artifactId>mortise-utils-netutils</artifactId>
-    <version>${mortise.version}</version>
+    <version>3.0.1.RELEASE</version>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -24,10 +24,18 @@
         <!--</dependency>-->
         <!-- https://mvnrepository.com/artifact/commons-httpclient/commons-httpclient -->
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-        </dependency>
+            <!--<groupId>commons-httpclient</groupId>-->
+            <!--<artifactId>commons-httpclient</artifactId>-->
 
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.5.6</version>
+        </dependency>
         <dependency>
             <groupId>top.mortise.utils</groupId>
             <artifactId>mortise-utils-loghelper</artifactId>

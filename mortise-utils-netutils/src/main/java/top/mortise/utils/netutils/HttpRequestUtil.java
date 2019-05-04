@@ -3,22 +3,31 @@ package top.mortise.utils.netutils;
 /**
  * Created by Eric.Zhang on 2017/3/13.
  */
-import top.mortise.utils.loghelper.LogHelper;
 
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.commons.httpclient.util.URIUtil;
-import sun.net.www.http.*;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.*;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import top.mortise.utils.loghelper.LogHelper;
 
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -137,7 +146,7 @@ public class HttpRequestUtil {
 
 
     /**
-     * 执行一个HTTP GET请求，返回请求响应的HTML
+     * 执行一个HTTP GET请求，返回请求响应的内容
      *
      * @param url                 请求的URL地址
      * @param queryString 请求的查询参数,可以为null
@@ -145,28 +154,23 @@ public class HttpRequestUtil {
      */
     public static String doGet(String url, String queryString) {
         String response = null;
-        HttpClient client = new HttpClient();
+        CloseableHttpClient client  = HttpClients.createDefault();
         return doGet(url,queryString,client);
     }
-    public static String doGet(String url, String queryString, HttpClient client) {
-        String response = null;
-        HttpMethod method = new GetMethod(url);
-        try {
-            if (queryString!=null&& !"".equals(queryString)) {
-                method.setQueryString(URIUtil.encodeQuery(queryString));
-            }
-            client.executeMethod(method);
-            if (method.getStatusCode() == HttpStatus.SC_OK) {
-                response = method.getResponseBodyAsString();
-            }
-        } catch (URIException e) {
-            LogHelper.logger().error("执行HTTP Get请求时，编码查询字符串“" + queryString + "”发生异常！", e);
-        } catch (IOException e) {
-            LogHelper.logger().error("执行HTTP Get请求" + url + "时，发生异常！", e);
-        } finally {
-            method.releaseConnection();
+
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url   请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static String doGet(String url, String queryString, CloseableHttpClient client) {
+        HttpResponseModel responseModel = doGet(url,queryString,null,client);
+        if(responseModel!=null&&responseModel.getCode()==HttpStatus.SC_OK){
+            return responseModel.getContent();
         }
-        return response;
+        return "";
     }
     /**
      * 执行一个HTTP Get请求，返回请求响应的内容
@@ -177,32 +181,64 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doGet(String url, Map<String, String> params,Map<String, String> headers) {
-        String response = null;
-        HttpClient client = new HttpClient();
+        CloseableHttpClient client  = HttpClients.createDefault();
         return doGet(url,params,headers,client);
     }
 
-    public static HttpResponseModel doGet(String url, Map<String, String> params, Map<String, String> headers, HttpClient client) {
-        HttpMethod getMethod = new GetMethod(url);
-        if (params != null) {
-            NameValuePair [] queryPairs=new NameValuePair[params.size()];
-            int i=0;
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                queryPairs[i]=new NameValuePair(entry.getKey(),entry.getValue());
-                i++;
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryParams 请求的查询参数,可以为null
+     * @param headers http请求头中的参数
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static HttpResponseModel doGet(String url, Map<String, String> queryParams, Map<String, String> headers, CloseableHttpClient client) {
+        String queryString = "";
+        if (queryParams != null) {
+            try {
+                queryString = paramToQueryString(queryParams);
+                if(  queryString!=null && "".equals(queryParams)){
+                    if(url.indexOf("?")>0 ){
+                        url +="&" + queryString;
+                    }else{
+                        url +="?" + queryString;
+                    }
+                }
+            }catch (Exception ex){
+                LogHelper.logger().error("执行HTTP Get" + url+ "时，序列化参数失败：", ex.getMessage());
+            }
+        }
 
-            }
-            if(queryPairs.length>0){
-                getMethod.setQueryString(queryPairs);
-            }
+        return doGet(url,queryString,headers,client);
+    }
+
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @param headers http请求头中的参数
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static HttpResponseModel doGet(String url, String queryString,Map<String, String> headers, CloseableHttpClient client) {
+        HttpGet httpGet = new HttpGet(url);
+        if(queryString==null){
+            queryString="";
         }
         if(headers!=null){
             for (Map.Entry<String, String> entry : headers.entrySet()) {
-                getMethod.setRequestHeader(entry.getKey(), entry.getValue());
+                httpGet.setHeader(entry.getKey(), entry.getValue());
             }
         }
-        return doRequest(url,client,getMethod);
+        try{
+            httpGet.setURI(new URIBuilder(httpGet.getURI().toString() + queryString).build());
+        }catch (URISyntaxException e) {
+            LogHelper.logger().error("执行HTTP Get请求时，编码查询字符串“" + queryString + "”发生异常！", e);
+        }
+        return doRequest(client,httpGet);
     }
+
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
      *
@@ -212,8 +248,8 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url, List<NameValuePair> bodyParams,Map<String, String> headers) {
-        HttpClient client = new HttpClient();
-        return doPost(url,bodyParams,headers,client);
+        CloseableHttpClient client  = HttpClients.createDefault();
+        return doPost(url,null,bodyParams,headers,client);
     }
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
@@ -224,141 +260,278 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url, Map<String, String> bodyParams,Map<String, String> headers) {
-        HttpClient client = new HttpClient();
-        //设置Http Post数据
-        List<NameValuePair> dataPairs  =null;
-        if (bodyParams != null) {
-             dataPairs=new ArrayList<NameValuePair>();
-            int i=0;
-            for (Map.Entry<String, String> entry : bodyParams.entrySet()) {
-                dataPairs.add(new NameValuePair(entry.getKey(),entry.getValue()));
-                i++;
-            }
-        }
-        return doPost(url,dataPairs,headers,client);
+        return doPost(url,null,bodyParams,headers);
     }
-
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers http请求头中的参数
+     * @return
+     */
     public static HttpResponseModel doPost(String url, Map<String, String> queryParams,Map<String, String> bodyParams,Map<String, String> headers) {
-        HttpClient client = new HttpClient();
-        for (String key : queryParams.keySet()) {
-            if (url.indexOf("?") > 0) {
-                url += "&";
-            } else {
-                url += "?";
 
+        CloseableHttpClient client  = HttpClients.createDefault();
+        List<NameValuePair> nameValuePairs = null;
+        if(bodyParams!=null&&bodyParams.size()>0){
+            nameValuePairs = new ArrayList<>(bodyParams.size() );
+            for(String key : bodyParams.keySet()){
+                nameValuePairs.add(new BasicNameValuePair(key,bodyParams.get(key)));
             }
-            url += key + "=" + queryParams.get(key);
-        }
 
-        return doPost(url,bodyParams,headers);
+        }
+        return doPost(url,queryParams,nameValuePairs,headers,client);
     }
 
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
      *
      * @param url        请求的URL地址
-     * @param entity 请求的参数,可以为null
+     * @param entity  请求的实体信息,可以为null
      * @param headers 请求的header,可以为null
      * @return 返回请求响应
      */
-    public static HttpResponseModel doPost(String url, RequestEntity entity,Map<String, String> headers) {
-        String response = null;
-        HttpClient client = new HttpClient();
-        PostMethod  postMethod = new PostMethod(url);
-        HttpResponseModel result=new HttpResponseModel();
-        if (entity != null) {
-
-            postMethod.setRequestEntity(entity);
-
-        }
-        if(headers!=null){
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                postMethod.setRequestHeader(entry.getKey(), entry.getValue());
-            }
-        }
-
-
-        return doRequest(url,client,postMethod);
+    public static HttpResponseModel doPost(String url, HttpEntity entity, Map<String, String> headers) {
+        return doPost(url,null,entity,headers);
     }
-    public static HttpResponseModel doPost(String url, List<NameValuePair> params,Map<String, String> headers,HttpClient client) {
-        String response = null;
-        PostMethod  postMethod = new PostMethod(url);
-        HttpResponseModel result=new HttpResponseModel();
-        //设置Http Post数据
-
-        if (params != null) {
-            if(params.size()>0){
-                NameValuePair[] valuePairs = new NameValuePair[params.size()];
-                params.toArray(valuePairs);
-                postMethod.setRequestBody(valuePairs);
-            }
-        }
-        if(headers!=null){
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                postMethod.setRequestHeader(entry.getKey(), entry.getValue());
-            }
-        }
-
-
-        return doRequest(url,client,postMethod);
-    }
-    public static HttpResponseModel doPost(String url, Map<String, String> queryParams, List<NameValuePair> params,Map<String, String> headers,HttpClient client) {
-        String response = null;
-        PostMethod  postMethod = new PostMethod(url);
-        HttpResponseModel result=new HttpResponseModel();
-        //设置Http Post数据
-        for (String key : queryParams.keySet()) {
-            if (url.indexOf("?") > 0) {
-                url += "&";
-            } else {
-                url += "?";
-
-            }
-            url += key + "=" + queryParams.get(key);
-        }
-        if (params != null) {
-            if(params.size()>0){
-                NameValuePair[] valuePairs = new NameValuePair[params.size()];
-                params.toArray(valuePairs);
-                postMethod.setRequestBody(valuePairs);
-            }
-        }
-        if(headers!=null){
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                postMethod.setRequestHeader(entry.getKey(), entry.getValue());
-            }
-        }
-
-
-        return doRequest(url,client,postMethod);
-    }
-
-
-
-    public static HttpResponseModel doRequest(String url, HttpClient client, HttpMethod  httpMethod) {
-        HttpResponseModel result=new HttpResponseModel();
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param entity  请求的实体信息,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url,Map<String, String> queryParams,  HttpEntity entity, Map<String, String> headers) {
+        CloseableHttpClient client  = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(url);
+        String queryString ="";
         try {
-            client.executeMethod(httpMethod);
-            result.code=httpMethod.getStatusCode();
-            InputStream jsonStr;
-            jsonStr = httpMethod.getResponseBodyAsStream();
-            ByteArrayOutputStream baos   =   new   ByteArrayOutputStream();
-            int   i=-1;
-            while((i=jsonStr.read())!=-1){
-                baos.write(i);
+            queryString = paramToQueryString(queryParams);
+            if(  queryString!=null && "".equals(queryParams)){
+                if(url.indexOf("?")>0 ){
+                    url +="&" + queryString;
+                }else{
+                    url +="?" + queryString;
+                }
             }
-            result.content = new String(baos.toByteArray(),"utf-8");
-        }
-        catch (IOException e) {
-            LogHelper.logger().error("执行HTTP "+httpMethod.getName()+" " + url+ "时，发生异常！请求参数：", e.getMessage());
-            result.code=404;
-        }finally {
-            httpMethod.releaseConnection();
+        }catch (Exception ex){
+            LogHelper.logger().error("执行HTTP Post" + url+ "时，序列化queryParams参数失败：", ex.getMessage());
         }
 
+        if (entity != null) {
+            httpPost.setEntity(entity);
+        }
+        if(headers!=null){
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                httpPost.setHeader(entry.getKey(), entry.getValue());
+            }
+        }
+
+
+        return doRequest(client,httpPost);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, List<NameValuePair> bodyParams,Map<String, String> headers,CloseableHttpClient client) {
+        return doPost(url,null,bodyParams,headers,client);
+    }
+
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, Map<String, String> queryParams, List<NameValuePair> bodyParams,Map<String, String> headers,CloseableHttpClient client) {
+        HttpPost httpPost = new HttpPost(url);
+        //设置Http Post数据
+        String queryString ="";
+        try {
+            queryString = paramToQueryString(queryParams);
+            if(  queryString!=null && "".equals(queryParams)){
+                if(url.indexOf("?")>0 ){
+                    url +="&" + queryString;
+                }else{
+                    url +="?" + queryString;
+                }
+            }
+
+        }catch (Exception ex){
+            LogHelper.logger().error("执行HTTP Post" + url+ "时，序列化queryParams参数失败：", ex.getMessage());
+        }
+
+        if (bodyParams != null&&bodyParams.size()>0) {
+            try {
+                httpPost.setEntity(new UrlEncodedFormEntity(bodyParams, "UTF-8"));
+            }catch (Exception ex){
+                LogHelper.logger().error("执行HTTP Post" + url+ "时，序列化params参数失败：", ex.getMessage());
+            }
+        }
+        if(headers!=null){
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                httpPost.setHeader(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return doRequest(client,httpPost);
+    }
+
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, Map<String, String> queryParams, Map<String, String> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes) {
+        CloseableHttpClient client  = HttpClients.createDefault();
+        List<NameValuePair> nameValuePairs = null;
+        if(bodyParams!=null&&bodyParams.size()>0){
+            nameValuePairs = new ArrayList<>(bodyParams.size() );
+            for(String key : bodyParams.keySet()){
+                nameValuePairs.add(new BasicNameValuePair(key,bodyParams.get(key)));
+            }
+
+        }
+        return doPost(url,queryParams,nameValuePairs,headers,fileName,fileBytes,client);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, Map<String, String> queryParams, Map<String, String> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes,CloseableHttpClient client) {
+        List<NameValuePair> nameValuePairs = null;
+        if(bodyParams!=null&&bodyParams.size()>0){
+            nameValuePairs = new ArrayList<>(bodyParams.size() );
+            for(String key : bodyParams.keySet()){
+                nameValuePairs.add(new BasicNameValuePair(key,bodyParams.get(key)));
+            }
+
+        }
+        return doPost(url,queryParams,nameValuePairs,headers,fileName,fileBytes,client);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, Map<String, String> queryParams, List<NameValuePair> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes,CloseableHttpClient client) {
+        HttpPost httpPost = new HttpPost(url);
+        //设置Http Post数据
+        String queryString ="";
+        try {
+            queryString = paramToQueryString(queryParams);
+            if(  queryString!=null && "".equals(queryParams)){
+                if(url.indexOf("?")>0 ){
+                    url +="&" + queryString;
+                }else{
+                    url +="?" + queryString;
+                }
+            }
+        }catch (Exception ex){
+            LogHelper.logger().error("执行HTTP Post" + url+ "时，序列化queryParams参数失败：", ex.getMessage());
+        }
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.RFC6532);
+        if(fileBytes!=null && fileBytes.length>0){
+            InputStream inputStream = new ByteArrayInputStream(fileBytes);
+            builder.addBinaryBody(fileName, inputStream, ContentType.create("multipart/form-data"), fileName);
+        }
+        if (bodyParams != null&&bodyParams.size()>0) {
+            for(NameValuePair nameValuePair : bodyParams){
+                StringBody stringBody = new StringBody(nameValuePair.getValue(),ContentType.MULTIPART_FORM_DATA);
+                builder.addPart(nameValuePair.getName(),stringBody);
+            }
+        }
+        HttpEntity entity = builder.build();
+        httpPost.setEntity(entity);
+
+        if(headers!=null){
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                httpPost.setHeader(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return doRequest(client,httpPost);
+    }
+
+
+
+
+
+    private static String paramToQueryString( Map<String, String> queryParams) throws Exception{
+        String result ="";
+        if (queryParams != null) {
+            List<NameValuePair> queryPairs=new ArrayList<>(queryParams.size());
+            for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+                queryPairs.add(new BasicNameValuePair(entry.getKey(),entry.getValue()));
+            }
+            if(queryPairs.size()>0){
+                result = EntityUtils.toString(new UrlEncodedFormEntity(queryPairs));
+            }
+        }
+        return  result;
+    }
+
+    private static HttpResponseModel doRequest(CloseableHttpClient httpClient,HttpRequestBase requestBase){
+        HttpResponseModel result=new HttpResponseModel();
+        //CloseableHttpClient httpClient = null;
+        CloseableHttpResponse response = null;
+        try{
+
+//			httpPut.setConfig(config);
+            response = httpClient.execute(requestBase);
+            result.code=response.getStatusLine().getStatusCode();
+            result.content = EntityUtils.toString(response.getEntity(), "UTF-8");
+        }catch(Exception e){
+            LogHelper.logger().error("执行HTTP "+requestBase.getMethod()+" " + requestBase.getURI().toString()+ "时，发生异常！请求参数：", e.getMessage());
+        }finally{
+            try{
+                if(response != null){
+                    response.close();
+                }
+                if(httpClient != null) {
+                    httpClient.close();
+                }
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
         return result;
     }
-
 
 }
 
