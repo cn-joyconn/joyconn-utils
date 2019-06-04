@@ -20,6 +20,7 @@
         <module>mortise-utils-QRCodeUtil</module>
         <module>mortise-utils-webutils</module>
         <module>mortise-utils-datasource</module>
+        <module>mortise-utils-threads</module>
     </modules>
     <parent>
         <groupId>top.mortise</groupId>
