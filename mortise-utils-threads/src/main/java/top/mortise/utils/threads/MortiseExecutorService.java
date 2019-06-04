@@ -7,24 +7,24 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 
-@Component
-@Configuration
+@Service
 public class MortiseExecutorService {
     ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("mortise-thread-call-runner-%d").build();
-    @Value("mortise.ThreadPoolExecutor.min")
+    @Value("${mortise.ThreadPoolExecutor.min}")
     Integer minSize;
-    @Value("mortise.ThreadPoolExecutor.max")
+    @Value("${mortise.ThreadPoolExecutor.max}")
     Integer maxSize;
-    ExecutorService executorService= new ThreadPoolExecutor(minSize,maxSize,0L,TimeUnit.MILLISECONDS,new LinkedBlockingQueue<Runnable>(),namedThreadFactory);
-    public MortiseExecutorService(){
+    static ExecutorService executorService=null;
 
-    }
-    public ExecutorService getExecutorService(){
-        return executorService;
+
+    @PostConstruct
+    private    void init(){
+        executorService= new ThreadPoolExecutor(minSize,maxSize,0L,TimeUnit.MILLISECONDS,new LinkedBlockingQueue<Runnable>(),namedThreadFactory);
     }
 
     /**
