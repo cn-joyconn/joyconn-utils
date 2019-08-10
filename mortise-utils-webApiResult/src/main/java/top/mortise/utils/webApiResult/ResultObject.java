@@ -15,7 +15,7 @@ public class ResultObject<T> {
     @ApiModelProperty(value = "结果数据体")
     private  T result;
     @ApiModelProperty(value = "符合条件的总条数,只在分页查询中有效")
-    private  int allcount;
+    private  Long allcount;
 
     public ResultObject(){
         code= ResultCode.OperateOk;
@@ -63,14 +63,14 @@ public class ResultObject<T> {
      * 获取数据总条数，只在分页查询时会用到
      * @return
      */
-    public int getAllcount() {
+    public Long getAllcount() {
         return allcount;
     }
     /**
      * 设置数据总条数，只在分页查询时会用到
      * @return
      */
-    public void setAllcount(int allcount) {
+    public void setAllcount(Long allcount) {
         this.allcount = allcount;
     }
 

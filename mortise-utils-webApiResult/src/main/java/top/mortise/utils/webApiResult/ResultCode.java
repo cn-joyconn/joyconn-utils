@@ -52,7 +52,13 @@ public enum ResultCode {
     @ApiModelProperty(value = "商品已失效")
     GoodsInvalid,
     @ApiModelProperty(value = "支付失败")
-    PayError
+    PayError,
+    @ApiModelProperty(value = "手机号已存在")
+    PhoneExisit,
+    @ApiModelProperty(value = "邮箱已存在")
+    EmailExisit,
+    @ApiModelProperty(value = "用户名已存在")
+   UserNameExisit,
 
 
 }

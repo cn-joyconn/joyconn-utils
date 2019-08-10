@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by Eric.Zhang on 2017/3/13.
@@ -38,10 +39,9 @@ public class VerifyCodeHelper {
             sources = VERIFY_CODES;
         }
         int codesLen = sources.length();
-        Random rand = new Random(System.currentTimeMillis());
         StringBuilder verifyCode = new StringBuilder(verifySize);
         for(int i = 0; i < verifySize; i++){
-            verifyCode.append(sources.charAt(rand.nextInt(codesLen-1)));
+            verifyCode.append(sources.charAt(ThreadLocalRandom.current().nextInt(codesLen-1)));
         }
         return verifyCode.toString();
     }

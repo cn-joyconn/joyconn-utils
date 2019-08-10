@@ -43,7 +43,7 @@ public class DataSourceContextHolder {
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
         dataSource.setUrl("jdbc:mysql://"
                 + sourceData.getServer() + ":" + sourceData.getPort()
-                + "/" + sourceData.getDatabase()+"?useUnicode=true&characterEncoding=UTF-8");
+                + "/" + sourceData.getDatabase()+"?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8");
         dataSource.setUsername(sourceData.getUser());
         dataSource.setPassword(sourceData.getPsw());
         dataSource.setInitialSize(1);
