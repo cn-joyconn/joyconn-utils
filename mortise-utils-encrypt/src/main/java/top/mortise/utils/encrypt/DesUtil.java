@@ -6,10 +6,8 @@ package top.mortise.utils.encrypt;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.KeyGenerator;
+import javax.crypto.*;
+import javax.crypto.spec.DESKeySpec;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -42,14 +40,23 @@ public class DesUtil {
      * 根据参数生成 KEY
      */
     public void setKey(String strKey) {
+//        try {
+//            KeyGenerator generator = KeyGenerator.getInstance ( "DES" );
+//            generator.init( new SecureRandom(strKey.getBytes("UTF8")));
+//            this . key = generator.generateKey();
+//            generator = null ;
+//        } catch (Exception e) {
+//            throw new RuntimeException(
+//                    "Error setKey. Cause: " + e);
+//        }
+
         try {
-            KeyGenerator generator = KeyGenerator.getInstance ( "DES" );
-            generator.init( new SecureRandom(strKey.getBytes()));
-            this . key = generator.generateKey();
-            generator = null ;
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+            DESKeySpec keySpec = new DESKeySpec(strKey.getBytes("utf-8"));
+           // keyFactory.generateSecret(keySpec);
+            this . key = keyFactory.generateSecret(keySpec);
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Error initializing SqlMap class. Cause: " + e);
+            e.printStackTrace();
         }
     }
 
@@ -67,7 +74,7 @@ public class DesUtil {
             strMi = base64en.encode(byteMi);
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Error initializing SqlMap class. Cause: " + e);
+                    "Error encryptStr. Cause: " + e);
         } finally {
             base64en = null ;
             byteMing = null ;
@@ -92,7 +99,7 @@ public class DesUtil {
             strMing = new String(byteMing, "UTF8" );
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Error initializing SqlMap class. Cause: " + e);
+                    "Error decryptStr. Cause: " + e);
         } finally {
             base64De = null ;
             byteMing = null ;
@@ -115,7 +122,7 @@ public class DesUtil {
             byteFina = cipher.doFinal(byteS);
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Error initializing SqlMap class. Cause: " + e);
+                    "Error encryptByte. Cause: " + e);
         } finally {
             cipher = null ;
         }
@@ -136,7 +143,7 @@ public class DesUtil {
             byteFina = cipher.doFinal(byteD);
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Error initializing SqlMap class. Cause: " + e);
+                    "Error decryptByte. Cause: " + e);
         } finally {
             cipher = null ;
         }

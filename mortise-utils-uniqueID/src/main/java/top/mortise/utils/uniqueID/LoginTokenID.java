@@ -12,7 +12,7 @@ import java.util.Date;
  *  用户令牌
  */
 public class LoginTokenID implements  Serializable{
-    static String  token_ekey = "I?vek0w\\";
+     String  token_ekey = "I?vek0w\\";
     String uid;
     String pwd;
     int timestamp;
@@ -51,7 +51,7 @@ public class LoginTokenID implements  Serializable{
      * @param tokenStr 令牌字符串
      * Created by Eric.Zhang on 2016/12/29.
      */
-    public LoginTokenID(String tokenStr){
+    public LoginTokenID(String tokenStr,String token_ekey){
         if (tokenStr == null||tokenStr.length()<1)
         {
             return;
@@ -106,7 +106,7 @@ public class LoginTokenID implements  Serializable{
      * @param password 密码
      * Created by Eric.Zhang on 2016/12/29.
      */
-    public LoginTokenID(String userid, String password)
+    public LoginTokenID(String userid, String password,String token_ekey)
     {
         uniqueObjectID = new top.mortise.utils.uniqueID.DBObjectID();
         timestamp = uniqueObjectID.getTimestamp();
@@ -115,6 +115,7 @@ public class LoginTokenID implements  Serializable{
         increment = uniqueObjectID.getCounter();
         uid = userid;
         pwd = password;
+        this.token_ekey=token_ekey;
     }
 
     /**
@@ -124,7 +125,7 @@ public class LoginTokenID implements  Serializable{
      * @param oldUniqueObjectID 唯一ID
      * Created by Eric.Zhang on 2016/12/29.
      */
-    public LoginTokenID(String userid, String password, top.mortise.utils.uniqueID.DBObjectID oldUniqueObjectID)
+    public LoginTokenID(String userid, String password, top.mortise.utils.uniqueID.DBObjectID oldUniqueObjectID,String token_ekey)
     {
         uniqueObjectID = oldUniqueObjectID;
         timestamp = uniqueObjectID.getTimestamp();
@@ -133,6 +134,7 @@ public class LoginTokenID implements  Serializable{
         increment = uniqueObjectID.getCounter();
         uid = userid;
         pwd = password;
+        this.token_ekey=token_ekey;
     }
 
     @Override

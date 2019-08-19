@@ -42,32 +42,33 @@ public class UploadFileUtil {
     @Value("${mortise.uploadfile.save.remoteUploadkey}")
     private String remoteUploadkey;
 
-    String tempPath;
-    String uploadRoot;
-    File tempPathFile;
 
 
-    private void init(HttpServletRequest request) throws ServletException, IOException {
 
+    private FileSaveVal init(HttpServletRequest request) throws ServletException, IOException {
+
+        FileSaveVal fileSaveVal =new FileSaveVal();
         if ("false".equals(uploadRemote)) {
             File file = ResourceUtils.getFile("classpath:static");
             String webDir= file.getCanonicalPath();
            // String webDir=this.getClass().getResource("/").getPath()+"/static";
-            tempPath= (webDir+saveTempPath).replace("//","/");
-            uploadRoot=(webDir+saveUploadRoot).replace("//","/");
+            fileSaveVal.setTempPath((webDir+saveTempPath).replace("//","/"));
+            fileSaveVal.setUploadRoot((webDir+saveUploadRoot).replace("//","/"));
 
         }else{
-            tempPath = saveTempPath;
-            uploadRoot=saveUploadRoot;
+
+            fileSaveVal.setTempPath(saveTempPath);
+            fileSaveVal.setUploadRoot(saveUploadRoot);
         }
-        File uploadFile = new File(uploadRoot);
+        File uploadFile = new File(fileSaveVal.getUploadRoot());
         if (!uploadFile.exists()) {
             uploadFile.mkdirs();
         }
-        File tempPathFile = new File(tempPath);
-        if (!tempPathFile.exists()) {
-            tempPathFile.mkdirs();
+        fileSaveVal.setTempPathFile( new File(fileSaveVal.getTempPath()));
+        if (!fileSaveVal.getTempPathFile().exists()) {
+            fileSaveVal.getTempPathFile().mkdirs();
         }
+        return fileSaveVal;
     }
     public String saveFileByMultiFlie(MultipartFile file, HttpServletRequest request, String uploadEnum)
             throws ServletException, IOException {
@@ -91,13 +92,13 @@ public class UploadFileUtil {
     String saveFileByMultiLocal(MultipartFile file, String uploadEnum,HttpServletRequest request)
             throws ServletException, IOException {
 
-        init(request);
+        FileSaveVal fileSaveVal = init(request);
         // Create a factory for disk-based file items
         DiskFileItemFactory factory = new DiskFileItemFactory();
 
         // Set factory constraints
         factory.setSizeThreshold(1024 * 1024); // 设置缓冲区大小，这里是1mb
-        factory.setRepository(tempPathFile);// 设置缓冲区目录
+        factory.setRepository(fileSaveVal.getTempPathFile());// 设置缓冲区目录
 
         // Create a new file upload handler
         ServletFileUpload upload = new ServletFileUpload(factory);
@@ -106,12 +107,12 @@ public class UploadFileUtil {
             String fullFileName = file.getOriginalFilename();
             //获取扩展名称
             String suffixName = fullFileName.substring(fullFileName.lastIndexOf("."));
-            String uploadPath = uploadRoot + uploadEnum.toString();
+            String uploadPath = fileSaveVal.getUploadRoot() + uploadEnum.toString();
 
 
             String newFileName = new DBObjectID().toString() + suffixName;
             String basicPath = "/"+uploadEnum+"/"+ DateExt.getNowDate() + "/";
-            String newUploadPath=uploadRoot+basicPath;
+            String newUploadPath=fileSaveVal.getUploadRoot()+basicPath;
             newUploadPath=newUploadPath.replace("//","/");
             String newFilePath = newUploadPath+ newFileName;
             try {
@@ -151,13 +152,13 @@ public class UploadFileUtil {
      * @throws IOException
      */
     String saveFileByRemoteServer( MultipartFile file,  String uploadEnum,HttpServletRequest request)throws ServletException, IOException{
-        init(request);
+        FileSaveVal fileSaveVal = init(request);
         // Create a factory for disk-based file items
         DiskFileItemFactory factory = new DiskFileItemFactory();
 
         // Set factory constraints
         factory.setSizeThreshold(1024 * 1024); // 设置缓冲区大小，这里是1mb
-        factory.setRepository(tempPathFile);// 设置缓冲区目录
+        factory.setRepository(fileSaveVal.getTempPathFile());// 设置缓冲区目录
 
         // Create a new file upload handler
         ServletFileUpload upload = new ServletFileUpload(factory);
@@ -209,12 +210,12 @@ public class UploadFileUtil {
 
     String saveStringFileLocal(String data,  String uploadEnum,String fileType,HttpServletRequest request) throws Exception {
         try {
-            init(request);
+            FileSaveVal fileSaveVal = init(request);
             byte[] filedata = Base64Utils.decode(data);
 
             String newVirPath=  saveUploadRoot+ "/"+uploadEnum+"/"+ DateExt.getNowDate() + "/";
             newVirPath=newVirPath.replace("//","/");
-            String newUploadPath=uploadRoot+newVirPath;
+            String newUploadPath=fileSaveVal.getUploadRoot()+newVirPath;
             newUploadPath=newUploadPath.replace(saveUploadRoot+saveUploadRoot,saveUploadRoot).replace("//","/");
             File fileUploadPath = new File(newUploadPath);
             if (!fileUploadPath.exists()) {
@@ -358,4 +359,33 @@ public class UploadFileUtil {
         return res;
     }
 
+    class FileSaveVal{
+        String tempPath;
+        String uploadRoot;
+        File tempPathFile;
+
+        public String getTempPath() {
+            return tempPath;
+        }
+
+        public void setTempPath(String tempPath) {
+            this.tempPath = tempPath;
+        }
+
+        public String getUploadRoot() {
+            return uploadRoot;
+        }
+
+        public void setUploadRoot(String uploadRoot) {
+            this.uploadRoot = uploadRoot;
+        }
+
+        public File getTempPathFile() {
+            return tempPathFile;
+        }
+
+        public void setTempPathFile(File tempPathFile) {
+            this.tempPathFile = tempPathFile;
+        }
+    }
 }
