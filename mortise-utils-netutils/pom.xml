@@ -37,12 +37,12 @@
         <dependency>
             <groupId>top.mortise.utils</groupId>
             <artifactId>mortise-utils-loghelper</artifactId>
-            <version>${springboot.version}</version>
+            <version>${mortise.version}</version>
         </dependency>
         <dependency>
             <groupId>top.mortise.utils</groupId>
             <artifactId>mortise-utils-uniqueID</artifactId>
-            <version>${springboot.version}</version>
+            <version>${mortise.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
         <dependency>

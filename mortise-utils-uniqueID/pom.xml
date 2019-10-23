@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>mortise-utils</artifactId>
         <groupId>top.mortise.utils</groupId>
@@ -17,17 +15,17 @@
         <dependency>
             <groupId>top.mortise.utils</groupId>
             <artifactId>mortise-utils-comm</artifactId>
-            <version>${springboot.version}</version>
+            <version>${mortise.version}</version>
         </dependency>
         <dependency>
             <groupId>top.mortise.utils</groupId>
             <artifactId>mortise-utils-loghelper</artifactId>
-            <version>${springboot.version}</version>
+            <version>${mortise.version}</version>
         </dependency>
         <dependency>
             <groupId>top.mortise.utils</groupId>
             <artifactId>mortise-utils-encrypt</artifactId>
-            <version>${springboot.version}</version>
+            <version>${mortise.version}</version>
         </dependency>
     </dependencies>
 </project>

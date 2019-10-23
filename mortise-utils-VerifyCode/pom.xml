@@ -18,17 +18,17 @@
         <dependency>
             <groupId>top.mortise.utils</groupId>
             <artifactId>mortise-utils-comm</artifactId>
-            <version>${springboot.version}</version>
+            <version>${mortise.version}</version>
         </dependency>
         <dependency>
             <groupId>top.mortise.utils</groupId>
             <artifactId>mortise-utils-loghelper</artifactId>
-            <version>${springboot.version}</version>
+            <version>${mortise.version}</version>
         </dependency>
         <dependency>
             <groupId>top.mortise.utils</groupId>
             <artifactId>mortise-utils-encrypt</artifactId>
-            <version>${springboot.version}</version>
+            <version>${mortise.version}</version>
         </dependency>
     </dependencies>
 </project>

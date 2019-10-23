@@ -212,17 +212,15 @@ public class UploadFileUtil {
         try {
             FileSaveVal fileSaveVal = init(request);
             byte[] filedata = Base64Utils.decode(data);
+            String newFilename = new DBObjectID().toString()+fileType;
+            String basicPath = "/"+uploadEnum+"/"+ DateExt.getNowDate() + "/";
+            String newUploadPath=fileSaveVal.getUploadRoot()+basicPath;
+            newUploadPath=newUploadPath.replace("//","/");
 
-            String newVirPath=  saveUploadRoot+ "/"+uploadEnum+"/"+ DateExt.getNowDate() + "/";
-            newVirPath=newVirPath.replace("//","/");
-            String newUploadPath=fileSaveVal.getUploadRoot()+newVirPath;
-            newUploadPath=newUploadPath.replace(saveUploadRoot+saveUploadRoot,saveUploadRoot).replace("//","/");
-            File fileUploadPath = new File(newUploadPath);
+             File fileUploadPath = new File(newUploadPath);
             if (!fileUploadPath.exists()) {
                 fileUploadPath.mkdirs();
             }
-            String newFilename = new DBObjectID().toString();
-            newFilename+= fileType;
             String savefilename = newUploadPath+ newFilename;
             File file = new File(savefilename);
             FileOutputStream fos = new FileOutputStream(file);
@@ -234,7 +232,8 @@ public class UploadFileUtil {
             //为了节省IO流的开销，需要关闭
             fos.close();
 
-            return (newVirPath + "/" + newFilename).replace("//", "/");
+            String  returnUrl=(visitDomain+saveUploadRoot+basicPath+"/"+newFilename).replace("//","/");
+            return returnUrl;
         } catch (Exception ex) {
             LogHelper.logger().error("方法SaveStringFileLocal异常：" + ex.getMessage());
         }

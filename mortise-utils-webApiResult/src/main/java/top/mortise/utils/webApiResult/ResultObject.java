@@ -17,6 +17,8 @@ public class ResultObject<T> {
     @ApiModelProperty(value = "符合条件的总条数,只在分页查询中有效")
     private  Long allcount;
 
+
+
     public ResultObject(){
         code= ResultCode.OperateOk;
         errorMsg="";
