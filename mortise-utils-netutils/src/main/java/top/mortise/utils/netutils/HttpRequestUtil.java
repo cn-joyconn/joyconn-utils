@@ -8,6 +8,7 @@ package top.mortise.utils.netutils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
@@ -145,6 +146,7 @@ public class HttpRequestUtil {
     }
 
 
+    //region get
     /**
      * 执行一个HTTP GET请求，返回请求响应的内容
      *
@@ -160,13 +162,41 @@ public class HttpRequestUtil {
 
     /**
      * 执行一个HTTP GET请求，返回请求响应的内容
+     *
+     * @param url                 请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @return 返回请求响应的HTML
+     */
+    public static String doGet(String url, String queryString,RequestConfig reqConfig) {
+        String response = null;
+        CloseableHttpClient client  = HttpClients.createDefault();
+        return doGet(url,queryString,reqConfig,client);
+    }
+
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
      * @param url   请求的URL地址
      * @param queryString 请求的查询参数,可以为null
      * @param client  HttpClient实现类的实例对象
      * @return
      */
     public static String doGet(String url, String queryString, CloseableHttpClient client) {
-        HttpResponseModel responseModel = doGet(url,queryString,null,client);
+        HttpResponseModel responseModel = doGet(url,queryString,null,null,client);
+        if(responseModel!=null&&responseModel.getCode()==HttpStatus.SC_OK){
+            return responseModel.getContent();
+        }
+        return "";
+    }
+
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url   请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static String doGet(String url, String queryString,RequestConfig reqConfig, CloseableHttpClient client) {
+        HttpResponseModel responseModel = doGet(url,queryString,null,reqConfig,client);
         if(responseModel!=null&&responseModel.getCode()==HttpStatus.SC_OK){
             return responseModel.getContent();
         }
@@ -184,6 +214,18 @@ public class HttpRequestUtil {
         CloseableHttpClient client  = HttpClients.createDefault();
         return doGet(url,params,headers,client);
     }
+    /**
+     * 执行一个HTTP Get请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param params 请求的参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doGet(String url, Map<String, String> params,Map<String, String> headers,RequestConfig reqConfig) {
+        CloseableHttpClient client  = HttpClients.createDefault();
+        return doGet(url,params,headers,reqConfig,client);
+    }
 
     /**
      * 执行一个HTTP GET请求，返回请求响应的内容
@@ -194,6 +236,19 @@ public class HttpRequestUtil {
      * @return
      */
     public static HttpResponseModel doGet(String url, Map<String, String> queryParams, Map<String, String> headers, CloseableHttpClient client) {
+
+
+        return doGet(url,queryParams,headers,null,client);
+    }
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryParams 请求的查询参数,可以为null
+     * @param headers http请求头中的参数
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static HttpResponseModel doGet(String url, Map<String, String> queryParams, Map<String, String> headers, RequestConfig reqConfig,CloseableHttpClient client) {
         String queryString = "";
         if (queryParams != null) {
             try {
@@ -210,7 +265,7 @@ public class HttpRequestUtil {
             }
         }
 
-        return doGet(url,queryString,headers,client);
+        return doGet(url,queryString,headers,reqConfig,client);
     }
 
     /**
@@ -222,6 +277,17 @@ public class HttpRequestUtil {
      * @return
      */
     public static HttpResponseModel doGet(String url, String queryString,Map<String, String> headers, CloseableHttpClient client) {
+        return doGet(url,queryString,headers,null,client);
+    }
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @param headers http请求头中的参数
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static HttpResponseModel doGet(String url, String queryString,Map<String, String> headers,RequestConfig reqConfig, CloseableHttpClient client) {
         HttpGet httpGet = new HttpGet(url);
         if(queryString==null){
             queryString="";
@@ -236,8 +302,20 @@ public class HttpRequestUtil {
         }catch (URISyntaxException e) {
             LogHelper.logger().error("执行HTTP Get请求时，编码查询字符串“" + queryString + "”发生异常！", e);
         }
+        if(reqConfig==null){
+            reqConfig = RequestConfig.custom().setConnectionRequestTimeout(5000).setConnectTimeout(10000) // 设置连接超时时间
+                    .setSocketTimeout(10000) // 设置读取超时时间
+                    .setExpectContinueEnabled(false)
+                    .setCircularRedirectsAllowed(true) // 允许多次重定向
+                    .build();
+        }
+        httpGet.setConfig(reqConfig);
         return doRequest(client,httpGet);
     }
+
+    //endregion
+
+    //region post
 
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
@@ -249,7 +327,19 @@ public class HttpRequestUtil {
      */
     public static HttpResponseModel doPost(String url, List<NameValuePair> bodyParams,Map<String, String> headers) {
         CloseableHttpClient client  = HttpClients.createDefault();
-        return doPost(url,null,bodyParams,headers,client);
+        return doPost(url,null,bodyParams,headers,null,client);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param bodyParams 请求的参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, List<NameValuePair> bodyParams,Map<String, String> headers, RequestConfig reqConfig) {
+        CloseableHttpClient client  = HttpClients.createDefault();
+        return doPost(url,null,bodyParams,headers,reqConfig,client);
     }
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
@@ -260,7 +350,18 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url, Map<String, String> bodyParams,Map<String, String> headers) {
-        return doPost(url,null,bodyParams,headers);
+        return doPost(url,null,bodyParams,headers,null);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param bodyParams 请求的参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, Map<String, String> bodyParams,Map<String, String> headers, RequestConfig reqConfig) {
+        return doPost(url,null,bodyParams,headers,reqConfig);
     }
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
@@ -272,6 +373,18 @@ public class HttpRequestUtil {
      */
     public static HttpResponseModel doPost(String url, Map<String, String> queryParams,Map<String, String> bodyParams,Map<String, String> headers) {
 
+        return doPost(url,queryParams,bodyParams,headers,null);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers http请求头中的参数
+     * @return
+     */
+    public static HttpResponseModel doPost(String url, Map<String, String> queryParams,Map<String, String> bodyParams,Map<String, String> headers, RequestConfig reqConfig) {
+
         CloseableHttpClient client  = HttpClients.createDefault();
         List<NameValuePair> nameValuePairs = null;
         if(bodyParams!=null&&bodyParams.size()>0){
@@ -281,7 +394,7 @@ public class HttpRequestUtil {
             }
 
         }
-        return doPost(url,queryParams,nameValuePairs,headers,client);
+        return doPost(url,queryParams,nameValuePairs,headers,reqConfig,client);
     }
 
     /**
@@ -293,7 +406,18 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url, HttpEntity entity, Map<String, String> headers) {
-        return doPost(url,null,entity,headers);
+        return doPost(url,entity,headers,null);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param entity  请求的实体信息,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, HttpEntity entity, Map<String, String> headers, RequestConfig reqConfig) {
+        return doPost(url,null,entity,headers,reqConfig);
     }
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
@@ -305,6 +429,18 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url,Map<String, String> queryParams,  HttpEntity entity, Map<String, String> headers) {
+        return doPost(url,queryParams,entity,headers,null);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param entity  请求的实体信息,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url,Map<String, String> queryParams,  HttpEntity entity, Map<String, String> headers, RequestConfig reqConfig) {
         CloseableHttpClient client  = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(url);
         String queryString ="";
@@ -329,10 +465,20 @@ public class HttpRequestUtil {
                 httpPost.setHeader(entry.getKey(), entry.getValue());
             }
         }
-
+        if(reqConfig==null){
+            reqConfig = RequestConfig.custom().setConnectionRequestTimeout(5000).setConnectTimeout(10000) // 设置连接超时时间
+                    .setSocketTimeout(10000) // 设置读取超时时间
+                    .setExpectContinueEnabled(false)
+                    .setCircularRedirectsAllowed(true) // 允许多次重定向
+                    .build();
+        }
+        httpPost.setConfig(reqConfig);
 
         return doRequest(client,httpPost);
     }
+
+
+
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
      *
@@ -343,7 +489,19 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url, List<NameValuePair> bodyParams,Map<String, String> headers,CloseableHttpClient client) {
-        return doPost(url,null,bodyParams,headers,client);
+        return doPost(url,bodyParams,headers,null,client);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, List<NameValuePair> bodyParams,Map<String, String> headers, RequestConfig reqConfig,CloseableHttpClient client) {
+        return doPost(url,null,bodyParams,headers,reqConfig,client);
     }
 
     /**
@@ -357,37 +515,20 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url, Map<String, String> queryParams, List<NameValuePair> bodyParams,Map<String, String> headers,CloseableHttpClient client) {
-        HttpPost httpPost = new HttpPost(url);
-        //设置Http Post数据
-        String queryString ="";
-        try {
-            queryString = paramToQueryString(queryParams);
-            if(  queryString!=null && "".equals(queryParams)){
-                if(url.indexOf("?")>0 ){
-                    url +="&" + queryString;
-                }else{
-                    url +="?" + queryString;
-                }
-            }
-
-        }catch (Exception ex){
-            LogHelper.logger().error("执行HTTP Post" + url+ "时，序列化queryParams参数失败：", ex.getMessage());
-        }
-
-        if (bodyParams != null&&bodyParams.size()>0) {
-            try {
-                httpPost.setEntity(new UrlEncodedFormEntity(bodyParams, "UTF-8"));
-            }catch (Exception ex){
-                LogHelper.logger().error("执行HTTP Post" + url+ "时，序列化params参数失败：", ex.getMessage());
-            }
-        }
-        if(headers!=null){
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                httpPost.setHeader(entry.getKey(), entry.getValue());
-            }
-        }
-
-        return doRequest(client,httpPost);
+        return doPost(url,queryParams,bodyParams,headers,null,client);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, Map<String, String> queryParams, List<NameValuePair> bodyParams,Map<String, String> headers, RequestConfig reqConfig,CloseableHttpClient client) {
+        return doPost(url,queryParams,bodyParams,headers,null,null,reqConfig,client);
     }
 
     /**
@@ -402,16 +543,21 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url, Map<String, String> queryParams, Map<String, String> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes) {
-        CloseableHttpClient client  = HttpClients.createDefault();
-        List<NameValuePair> nameValuePairs = null;
-        if(bodyParams!=null&&bodyParams.size()>0){
-            nameValuePairs = new ArrayList<>(bodyParams.size() );
-            for(String key : bodyParams.keySet()){
-                nameValuePairs.add(new BasicNameValuePair(key,bodyParams.get(key)));
-            }
-
-        }
-        return doPost(url,queryParams,nameValuePairs,headers,fileName,fileBytes,client);
+        return doPost(url,queryParams,bodyParams,headers,fileName,fileBytes,null,null);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, Map<String, String> queryParams, Map<String, String> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes, RequestConfig reqConfig) {
+        return doPost(url,queryParams,bodyParams,headers,fileName,fileBytes,null,null);
     }
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
@@ -426,6 +572,21 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url, Map<String, String> queryParams, Map<String, String> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes,CloseableHttpClient client) {
+        return doPost(url,queryParams,bodyParams,headers,fileName,fileBytes,null,client);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, Map<String, String> queryParams, Map<String, String> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes, RequestConfig reqConfig,CloseableHttpClient client) {
         List<NameValuePair> nameValuePairs = null;
         if(bodyParams!=null&&bodyParams.size()>0){
             nameValuePairs = new ArrayList<>(bodyParams.size() );
@@ -434,7 +595,7 @@ public class HttpRequestUtil {
             }
 
         }
-        return doPost(url,queryParams,nameValuePairs,headers,fileName,fileBytes,client);
+        return doPost(url,queryParams,nameValuePairs,headers,fileName,fileBytes,null,client);
     }
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
@@ -449,6 +610,24 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url, Map<String, String> queryParams, List<NameValuePair> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes,CloseableHttpClient client) {
+        return doPost(url,queryParams,bodyParams,headers,fileName,fileBytes,null,client);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static HttpResponseModel doPost(String url, Map<String, String> queryParams, List<NameValuePair> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes, RequestConfig reqConfig,CloseableHttpClient client) {
+        if(client==null){
+            client  = HttpClients.createDefault();
+        }
         HttpPost httpPost = new HttpPost(url);
         //设置Http Post数据
         String queryString ="";
@@ -485,11 +664,19 @@ public class HttpRequestUtil {
             }
         }
 
+        if(reqConfig==null){
+            reqConfig = RequestConfig.custom().setConnectionRequestTimeout(5000).setConnectTimeout(10000) // 设置连接超时时间
+                    .setSocketTimeout(10000) // 设置读取超时时间
+                    .setExpectContinueEnabled(false)
+                    .setCircularRedirectsAllowed(true) // 允许多次重定向
+                    .build();
+        }
+        httpPost.setConfig(reqConfig);
         return doRequest(client,httpPost);
     }
 
 
-
+    //endregion
 
 
     private static String paramToQueryString( Map<String, String> queryParams) throws Exception{
