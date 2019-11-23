@@ -70,11 +70,14 @@ public class CookieUtils {
      * @param request
      * @param name  cookie名字
      */
-    public static void delCookie(HttpServletRequest request, String name ){
-        Map<String,Cookie> cookieMap = readCookieMap(request);
-        if(cookieMap.containsKey(name)){
-            Cookie cookie = (Cookie)cookieMap.get(name);
-            cookie.setMaxAge(0);
+    public static void delCookie(HttpServletRequest request, HttpServletResponse response, String name ){
+        Cookie[] cookies = request.getCookies();
+        for(Cookie cookie : cookies){
+            if(cookie.getName().equals(name)){
+                cookie.setValue(null);
+                cookie.setMaxAge(0);
+                response.addCookie(cookie);
+            }
         }
     }
 }

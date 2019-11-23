@@ -26,6 +26,7 @@
         <module>mortise-utils-webutils</module>
         <module>mortise-utils-datasource</module>
         <module>mortise-utils-threads</module>
+        <module>mortise-utils-elasticsearch</module>
     </modules>
 
 <build>
