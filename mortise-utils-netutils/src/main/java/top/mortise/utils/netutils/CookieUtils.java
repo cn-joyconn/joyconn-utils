@@ -72,12 +72,18 @@ public class CookieUtils {
      */
     public static void delCookie(HttpServletRequest request, HttpServletResponse response, String name ){
         Cookie[] cookies = request.getCookies();
-        for(Cookie cookie : cookies){
-            if(cookie.getName().equals(name)){
-                cookie.setValue(null);
-                cookie.setMaxAge(0);
-                response.addCookie(cookie);
+        if(cookies!=null){
+            for(Cookie cookie : cookies){
+                if(cookie!=null){
+                    if(cookie.getName().equals(name)){
+                        cookie.setValue(null);
+                        cookie.setMaxAge(0);
+                        response.addCookie(cookie);
+                    }
+                }
+
             }
         }
+
     }
 }
