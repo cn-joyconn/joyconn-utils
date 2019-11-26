@@ -9,6 +9,9 @@
         <artifactId>top-mortise</artifactId>
         <version>2.1.6-SNAPSHOT</version>
     </parent>
+    <properties>
+        <elasticsearch.version>7.4.2</elasticsearch.version>
+    </properties>
     <groupId>top.mortise.utils</groupId>
     <artifactId>mortise-utils</artifactId>
     <version>2.1.6-SNAPSHOT</version>
@@ -27,6 +30,7 @@
         <module>mortise-utils-datasource</module>
         <module>mortise-utils-threads</module>
         <module>mortise-utils-elasticsearch</module>
+        <module>mortise-utils-test</module>
     </modules>
 
 <build>

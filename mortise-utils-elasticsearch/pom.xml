@@ -13,26 +13,34 @@
 
 <dependencies>
     <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
-        <version>${springboot.version}</version>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context-support</artifactId>
     </dependency>
     <dependency>
         <groupId>org.elasticsearch</groupId>
         <artifactId>elasticsearch</artifactId>
-        <version>6.3.2</version>
     </dependency>
+<!--    <dependency>-->
+<!--        <groupId>org.elasticsearch.client</groupId>-->
+<!--        <artifactId>elasticsearch-rest-client</artifactId>-->
+<!--        <version>7.4.2</version>-->
+<!--    </dependency>-->
     <!-- Java High Level REST Client -->
     <dependency>
         <groupId>org.elasticsearch.client</groupId>
         <artifactId>elasticsearch-rest-high-level-client</artifactId>
-        <version>6.3.2</version>
     </dependency>
 
     <dependency>
         <groupId>top.mortise.utils</groupId>
         <artifactId>mortise-utils-loghelper</artifactId>
         <version>${mortise.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>fastjson</artifactId>
     </dependency>
 </dependencies>
 </project>
