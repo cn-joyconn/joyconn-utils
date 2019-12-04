@@ -253,7 +253,7 @@ public class HttpRequestUtil {
         if (queryParams != null) {
             try {
                 queryString = paramToQueryString(queryParams);
-                if(  queryString!=null && "".equals(queryParams)){
+                if(  queryString!=null && !"".equals(queryParams)){
                     if(url.indexOf("?")>0 ){
                         url +="&" + queryString;
                     }else{

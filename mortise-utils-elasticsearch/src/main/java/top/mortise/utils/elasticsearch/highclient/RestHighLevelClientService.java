@@ -2,6 +2,7 @@ package top.mortise.utils.elasticsearch.highclient;
 
 
 import com.alibaba.fastjson.JSONObject;
+import org.elasticsearch.common.xcontent.*;
 import org.springframework.stereotype.Service;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -21,7 +22,6 @@ import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
@@ -51,10 +51,14 @@ public class RestHighLevelClientService {
         CreateIndexRequest request = new CreateIndexRequest(indexName);
 
         if (null != settings && !"".equals(settings)) {
-            request.settings(settings, XContentType.JSON);
+            XContentParser parser = XContentFactory.xContent(XContentType.JSON). createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.THROW_UNSUPPORTED_OPERATION, settings);
+
+            request.settings(parser.map());
         }
         if (null != mapping && !"".equals(mapping)) {
-            request.mapping(mapping, XContentType.JSON);
+            XContentParser parser = XContentFactory.xContent(XContentType.JSON). createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.THROW_UNSUPPORTED_OPERATION, mapping);
+
+            request.mapping(parser.map());
         }
         return client.indices().create(request, RequestOptions.DEFAULT);
     }
@@ -95,6 +99,39 @@ public class RestHighLevelClientService {
     }
 
     /**
+     * 添加文档 使用自动id
+     * @param indexName
+     * @param source
+     * @return
+     * @throws IOException
+     */
+    public IndexResponse addDoc(String indexName, String source) throws IOException{
+        IndexRequest request = new IndexRequest(indexName);
+        XContentParser parser = XContentFactory.xContent(XContentType.JSON). createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.THROW_UNSUPPORTED_OPERATION, source);
+
+        request.source(parser.map());
+
+        return client.index(request, RequestOptions.DEFAULT);
+    }
+    /**
+     * 添加文档 手动指定id
+     * @param indexName
+     * @param id
+     * @param source
+     * @return
+     * @throws IOException
+     */
+    public IndexResponse addDoc(String indexName, String id, String source) throws IOException{
+        IndexRequest request = new IndexRequest(indexName);
+        XContentParser parser = XContentFactory.xContent(XContentType.JSON). createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.THROW_UNSUPPORTED_OPERATION, source);
+
+        request.id(id).source(parser.map());
+
+        return client.index(request, RequestOptions.DEFAULT);
+    }
+
+
+    /**
      * 根据 id 更新指定索引中的文档
      * @param indexName
      * @param id
@@ -103,10 +140,26 @@ public class RestHighLevelClientService {
      */
     public UpdateResponse updateDoc(String indexName, String id, String updateJson) throws IOException{
         UpdateRequest request = new UpdateRequest(indexName, id);
-        request.doc(XContentType.JSON, updateJson);
+        XContentParser parser = XContentFactory.xContent(XContentType.JSON). createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.THROW_UNSUPPORTED_OPERATION, updateJson);
+        request.doc(parser.map());
         return client.update(request, RequestOptions.DEFAULT);
     }
+    /**
+     * 根据 id 更新指定索引中的文档
+     * @param indexName
+     * @param id
+     * @return
+     * @throws IOException
+     */
+    public UpdateResponse updateInsertDoc(String indexName, String id, String updateJson) throws IOException{
+        IndexRequest indexRequest = new IndexRequest(indexName);
+        XContentParser parser = XContentFactory.xContent(XContentType.JSON). createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.THROW_UNSUPPORTED_OPERATION, updateJson);
+        indexRequest.id(id).source(parser.map());
+        UpdateRequest updateRequest = new UpdateRequest(indexName, id);
+        updateRequest.doc(parser.map()).upsert(indexRequest);
+        return client.update(updateRequest, RequestOptions.DEFAULT);
 
+    }
     /**
      * 根据 id 更新指定索引中的文档
      * @param indexName
@@ -136,36 +189,7 @@ public class RestHighLevelClientService {
         client.updateByQuery(request, RequestOptions.DEFAULT);
     }
 
-    /**
-     * 添加文档 手动指定id
-     * @param indexName
-     * @param id
-     * @param source
-     * @return
-     * @throws IOException
-     */
-    public IndexResponse addDoc(String indexName, String id, String source) throws IOException{
-        IndexRequest request = new IndexRequest(indexName);
 
-        request.id(id).source(source, XContentType.JSON);
-
-        return client.index(request, RequestOptions.DEFAULT);
-    }
-
-    /**
-     * 添加文档 使用自动id
-     * @param indexName
-     * @param source
-     * @return
-     * @throws IOException
-     */
-    public IndexResponse addDoc(String indexName, String source) throws IOException{
-        IndexRequest request = new IndexRequest(indexName);
-
-        request.source(source, XContentType.JSON);
-
-        return client.index(request, RequestOptions.DEFAULT);
-    }
 
     /**
      * 模糊匹配 默认分页为 0,10
@@ -181,7 +205,7 @@ public class RestHighLevelClientService {
         SearchRequest request = new SearchRequest(indexNames);
         SearchSourceBuilder builder = new SearchSourceBuilder();
         builder.query(new MatchQueryBuilder(field, key))
-                .from(page)
+                .from((page-1)*size)
                 .size(size);
         request.source(builder);
         return client.search(request, RequestOptions.DEFAULT);
@@ -212,7 +236,7 @@ public class RestHighLevelClientService {
         SearchRequest request = new SearchRequest(indexNames);
         SearchSourceBuilder builder = new SearchSourceBuilder();
         builder.query(QueryBuilders.termsQuery(field, key))
-                .from(page)
+                .from((page-1)*size)
                 .size(size);
         request.source(builder);
         return client.search(request, RequestOptions.DEFAULT);
