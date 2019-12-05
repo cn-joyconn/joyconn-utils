@@ -2,6 +2,7 @@ package top.mortise.utils.elasticsearch.highclient;
 
 
 import com.alibaba.fastjson.JSONObject;
+import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.common.xcontent.*;
 import org.springframework.stereotype.Service;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -84,6 +85,18 @@ public class RestHighLevelClientService {
     public boolean indexExists(String indexName) throws IOException {
         GetIndexRequest request = new GetIndexRequest(indexName);
         return client.indices().exists(request, RequestOptions.DEFAULT);
+    }
+
+    /**
+     * 判断 index 中是否存在文档（按ID）
+     * @param indexName
+     * @param id
+     * @return
+     * @throws IOException
+     */
+    public boolean existsDoc(String indexName, String id) throws IOException{
+        GetRequest request = new GetRequest(indexName, id);
+        return client.exists(request, RequestOptions.DEFAULT);
     }
 
     /**
