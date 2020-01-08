@@ -25,21 +25,21 @@ import java.util.Map;
  */
 @Service
 public class UploadFileUtil {
-    @Value("${mortise.uploadfile.save.uploadRemote}")
+    @Value("${cn.joyconn.uploadfile.save.uploadRemote}")
     private  String uploadRemote;
     // 临时文件目录
-    @Value("${mortise.uploadfile.save.temppath}")
+    @Value("${cn.joyconn.uploadfile.save.temppath}")
     private String saveTempPath;
-    @Value("${mortise.uploadfile.save.root}")
+    @Value("${cn.joyconn.uploadfile.save.root}")
     private String saveUploadRoot;
 
-    @Value("${mortise.uploadfile.visitDomain}")
+    @Value("${cn.joyconn.uploadfile.visitDomain}")
     private String visitDomain;
     //远程目录
-    @Value("${mortise.uploadfile.save.remoteUploadUrl}")
+    @Value("${cn.joyconn.uploadfile.save.remoteUploadUrl}")
     private String remoteUploadUrl;
     //远程目录
-    @Value("${mortise.uploadfile.save.remoteUploadkey}")
+    @Value("${cn.joyconn.uploadfile.save.remoteUploadkey}")
     private String remoteUploadkey;
 
 

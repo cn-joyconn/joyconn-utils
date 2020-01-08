@@ -9,7 +9,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <version>${mortise.version}</version>
     <groupId>cn.joyconn.utils</groupId>
     <artifactId>joyconn-utils-webApiResult</artifactId>
 

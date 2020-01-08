@@ -25,8 +25,8 @@
             <version>${cn-joyconn.version}</version>
         </dependency>
         <dependency>
-            <groupId>top.mortise.utils</groupId>
-            <artifactId>mortise-utils-encrypt</artifactId>
+            <groupId>cn.joyconn.utils</groupId>
+            <artifactId>joyconn-utils-encrypt</artifactId>
             <version>${cn-joyconn.version}</version>
         </dependency>
     </dependencies>

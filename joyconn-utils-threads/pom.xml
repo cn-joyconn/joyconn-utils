@@ -9,9 +9,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>top.mortise.utils</groupId>
-    <artifactId>mortise-utils-threads</artifactId>
-    <version>${mortise.version}</version>
+
+    <groupId>cn.joyconn.utils</groupId>
+    <artifactId>joyconn-utils-threads</artifactId>
+    <version>${cn-joyconn.version}</version>
+    
 <dependencies>
     <dependency>
         <groupId>org.springframework.boot</groupId>

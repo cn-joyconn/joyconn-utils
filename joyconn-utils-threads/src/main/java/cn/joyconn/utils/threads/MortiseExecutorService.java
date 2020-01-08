@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.concurrent.*;
 
 @Service
-public class MortiseExecutorService {
-    ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("mortise-thread-call-runner-%d").build();
-    @Value("${mortise.ThreadPoolExecutor.min}")
+public class JoyConnExecutorService {
+    ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("joyconn-thread-call-runner-%d").build();
+    @Value("${cn.joyconn.ThreadPoolExecutor.min}")
     Integer minSize;
-    @Value("${mortise.ThreadPoolExecutor.max}")
+    @Value("${cn.joyconn.ThreadPoolExecutor.max}")
     Integer maxSize;
     static ExecutorService executorService=null;
 

@@ -14,9 +14,6 @@
     <loggers>
         <!-- 将业务dao接口填写进去,并用控制台输出即可 -->
 
-        <logger name="cn.joyconn.authorize.authentication.dao.MortiseAuthenticateAuthenticationDao" level="DEBUG" additivity="false">
-            <appender-ref ref="consolePrint"/>
-        </logger>
         <root level="info">
             <appender-ref ref="consolePrint" />
         </root>
