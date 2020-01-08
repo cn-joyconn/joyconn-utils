@@ -5,32 +5,32 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <parent>
-        <groupId>top.mortise</groupId>
-        <artifactId>top-mortise</artifactId>
+        <groupId>cn.joyconn</groupId>
+        <artifactId>cn-joyconn</artifactId>
         <version>2.1.6-SNAPSHOT</version>
     </parent>
     <properties>
         <elasticsearch.version>7.4.2</elasticsearch.version>
     </properties>
-    <groupId>top.mortise.utils</groupId>
-    <artifactId>mortise-utils</artifactId>
+    <groupId>cn.joyconn.utils</groupId>
+    <artifactId>joyconn-utils</artifactId>
     <version>2.1.6-SNAPSHOT</version>
     <modules>
-        <module>mortise-utils-comm</module>
-        <module>mortise-utils-loghelper</module>
-        <module>mortise-utils-encrypt</module>
-        <module>mortise-utils-uniqueID</module>
-        <module>mortise-utils-netutils</module>
-        <module>mortise-utils-pichelper</module>
-        <module>mortise-utils-VerifyCode</module>
-        <module>mortise-utils-webApiResult</module>
-        <module>mortise-utils-pay</module>
-        <module>mortise-utils-QRCodeUtil</module>
-        <module>mortise-utils-webutils</module>
-        <module>mortise-utils-datasource</module>
-        <module>mortise-utils-threads</module>
-        <module>mortise-utils-elasticsearch</module>
-        <module>mortise-utils-test</module>
+        <module>joyconn-utils-comm</module>
+        <module>joyconn-utils-loghelper</module>
+        <module>joyconn-utils-encrypt</module>
+        <module>joyconn-utils-uniqueID</module>
+        <module>joyconn-utils-netutils</module>
+        <module>joyconn-utils-pichelper</module>
+        <module>joyconn-utils-VerifyCode</module>
+        <module>joyconn-utils-webApiResult</module>
+        <module>joyconn-utils-pay</module>
+        <module>joyconn-utils-QRCodeUtil</module>
+        <module>joyconn-utils-webutils</module>
+        <module>joyconn-utils-datasource</module>
+        <module>joyconn-utils-threads</module>
+        <module>joyconn-utils-elasticsearch</module>
+        <module>joyconn-utils-test</module>
     </modules>
 
 <build>
