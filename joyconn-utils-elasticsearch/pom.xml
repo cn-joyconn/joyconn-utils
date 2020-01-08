@@ -34,7 +34,7 @@
     <dependency>
         <groupId>cn.joyconn.utils</groupId>
         <artifactId>joyconn-utils-loghelper</artifactId>
-        <version>${cn-joyconn.version}</version>
+        <version>${joyconn.version}</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->

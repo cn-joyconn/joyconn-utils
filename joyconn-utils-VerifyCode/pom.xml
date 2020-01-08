@@ -17,17 +17,17 @@
         <dependency>
             <groupId>cn.joyconn.utils</groupId>
             <artifactId>joyconn-utils-comm</artifactId>
-            <version>${cn-joyconn.version}</version>
+            <version>${joyconn.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.joyconn.utils</groupId>
             <artifactId>joyconn-utils-loghelper</artifactId>
-            <version>${cn-joyconn.version}</version>
+            <version>${joyconn.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.joyconn.utils</groupId>
             <artifactId>joyconn-utils-encrypt</artifactId>
-            <version>${cn-joyconn.version}</version>
+            <version>${joyconn.version}</version>
         </dependency>
     </dependencies>
 </project>

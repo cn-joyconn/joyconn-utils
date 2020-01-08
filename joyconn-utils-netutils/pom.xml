@@ -36,12 +36,12 @@
         <dependency>
             <groupId>cn.joyconn.utils</groupId>
             <artifactId>joyconn-utils-loghelper</artifactId>
-            <version>${cn-joyconn.version}</version>
+            <version>${joyconn.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.joyconn.utils</groupId>
             <artifactId>joyconn-utils-uniqueID</artifactId>
-            <version>${cn-joyconn.version}</version>
+            <version>${joyconn.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
         <dependency>

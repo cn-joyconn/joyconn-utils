@@ -12,7 +12,7 @@
 
     <groupId>cn.joyconn.utils</groupId>
     <artifactId>joyconn-utils-threads</artifactId>
-    <version>${cn-joyconn.version}</version>
+    <version>${joyconn.version}</version>
     
 <dependencies>
     <dependency>
