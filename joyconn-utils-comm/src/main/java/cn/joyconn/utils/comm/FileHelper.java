@@ -153,33 +153,37 @@ public class FileHelper {
      * 追加文件：使用FileWriter
      */
     @Deprecated
-    public static void appendString(String fileName, String content) {
+    public static boolean appendString(String fileName, String content) {
         try {
             //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
             FileWriter writer = new FileWriter(fileName, true);
             writer.write(content);
             writer.close();
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
     /**
      * 追加文件：使用FileWriter
      */
-    public static void appendchars(String fileName, char[] content) {
+    public static boolean appendchars(String fileName, char[] content) {
         try {
             //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
             FileWriter writer = new FileWriter(fileName, true);
             writer.write(content);
             writer.close();
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
     /**
      * 追加文件：使用FileWriter
      */
-    public static void writeFile(String fileName, String content,String charset) {
+    public static boolean writeFile(String fileName, String content,String charset) {
         File file=new File(fileName);
         if(!file.getParentFile().exists()){
             file.getParentFile().mkdirs();
@@ -199,14 +203,16 @@ public class FileHelper {
             BufferedWriter writer=new BufferedWriter(write);
             writer.write(content);
             writer.close();
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
     /**
      * 追加文件：使用FileWriter
      */
-    public static void writeFile(String fileName, String content) {
+    public static boolean writeFile(String fileName, String content) {
         File file=new File(fileName);
         if(!file.getParentFile().exists()){
             file.getParentFile().mkdirs();
@@ -225,14 +231,16 @@ public class FileHelper {
             FileWriter writer = new FileWriter(fileName, false);
             writer.write(content);
             writer.close();
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
     /**
      * 追加文件：使用FileWriter
      */
-    public static void writeFile(String fileName, char[] content) {
+    public static boolean writeFile(String fileName, char[] content) {
         File file=new File(fileName);
         if(!file.getParentFile().exists()){
             file.getParentFile().mkdirs();
@@ -251,9 +259,11 @@ public class FileHelper {
             FileWriter writer = new FileWriter(fileName, false);
             writer.write(content);
             writer.close();
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     /**
