@@ -4,24 +4,29 @@ package cn.joyconn.utils.netutils;
  * Created by Eric.Zhang on 2017/3/13.
  */
 
-
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.nio.client.HttpAsyncClient;
 import org.apache.http.util.EntityUtils;
-import cn.joyconn.utils.loghelper.LogHelper;
+import org.apache.logging.log4j.util.Strings;
 
+import cn.joyconn.utils.loghelper.LogHelper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
@@ -29,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Created by Eric.Zhang on 2017/1/11.
@@ -144,6 +150,21 @@ public class HttpRequestUtil {
         return 1;
     }
 
+    private static String paramToQueryString( Map<String, String> queryParams) throws Exception{
+        String result ="";
+        if (queryParams != null) {
+            List<NameValuePair> queryPairs=new ArrayList<>(queryParams.size());
+            for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+                queryPairs.add(new BasicNameValuePair(entry.getKey(),entry.getValue()));
+            }
+            if(queryPairs.size()>0){
+                result = EntityUtils.toString(new UrlEncodedFormEntity(queryPairs));
+            }
+        }
+        return  result;
+    }
+
+    //region 同步请求
 
     //region get
     /**
@@ -287,28 +308,7 @@ public class HttpRequestUtil {
      * @return
      */
     public static HttpResponseModel doGet(String url, String queryString,Map<String, String> headers,RequestConfig reqConfig, CloseableHttpClient client) {
-        HttpGet httpGet = new HttpGet(url);
-        if(queryString==null){
-            queryString="";
-        }
-        if(headers!=null){
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                httpGet.setHeader(entry.getKey(), entry.getValue());
-            }
-        }
-        try{
-            httpGet.setURI(new URIBuilder(httpGet.getURI().toString() + queryString).build());
-        }catch (URISyntaxException e) {
-            LogHelper.logger().error("执行HTTP Get请求时，编码查询字符串“" + queryString + "”发生异常！", e);
-        }
-        if(reqConfig==null){
-            reqConfig = RequestConfig.custom().setConnectionRequestTimeout(5000).setConnectTimeout(10000) // 设置连接超时时间
-                    .setSocketTimeout(10000) // 设置读取超时时间
-                    .setExpectContinueEnabled(false)
-                    .setCircularRedirectsAllowed(true) // 允许多次重定向
-                    .build();
-        }
-        httpGet.setConfig(reqConfig);
+        HttpGet httpGet = getHttpGet(url, queryString, headers, reqConfig);
         return doRequest(client,httpGet);
     }
 
@@ -440,39 +440,8 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url,Map<String, String> queryParams,  HttpEntity entity, Map<String, String> headers, RequestConfig reqConfig) {
-        CloseableHttpClient client  = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(url);
-        String queryString ="";
-        try {
-            queryString = paramToQueryString(queryParams);
-            if(  queryString!=null && "".equals(queryParams)){
-                if(url.indexOf("?")>0 ){
-                    url +="&" + queryString;
-                }else{
-                    url +="?" + queryString;
-                }
-            }
-        }catch (Exception ex){
-            LogHelper.logger().error("执行HTTP Post" + url+ "时，序列化queryParams参数失败：", ex.getMessage());
-        }
-
-        if (entity != null) {
-            httpPost.setEntity(entity);
-        }
-        if(headers!=null){
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                httpPost.setHeader(entry.getKey(), entry.getValue());
-            }
-        }
-        if(reqConfig==null){
-            reqConfig = RequestConfig.custom().setConnectionRequestTimeout(5000).setConnectTimeout(10000) // 设置连接超时时间
-                    .setSocketTimeout(10000) // 设置读取超时时间
-                    .setExpectContinueEnabled(false)
-                    .setCircularRedirectsAllowed(true) // 允许多次重定向
-                    .build();
-        }
-        httpPost.setConfig(reqConfig);
-
+        CloseableHttpClient client  = HttpClients.createDefault();        
+        HttpPost httpPost = getHttpPost(url, queryParams, entity, headers, reqConfig);
         return doRequest(client,httpPost);
     }
 
@@ -627,12 +596,585 @@ public class HttpRequestUtil {
         if(client==null){
             client  = HttpClients.createDefault();
         }
+        HttpPost httpPost = getHttpPost(url,queryParams,bodyParams,headers,fileName,fileBytes,reqConfig);
+        return doRequest(client,httpPost);
+    }
+
+
+    //endregion
+
+
+    private static HttpResponseModel doRequest(CloseableHttpClient httpClient,HttpRequestBase requestBase){
+        HttpResponseModel result=new HttpResponseModel();
+        //CloseableHttpClient httpClient = null;
+        CloseableHttpResponse response = null;
+        try{
+
+//			httpPut.setConfig(config);
+            response = httpClient.execute(requestBase);
+            result.code=response.getStatusLine().getStatusCode();
+            result.content = EntityUtils.toString(response.getEntity(), "UTF-8");
+        }catch(Exception e){
+            LogHelper.logger().error("执行HTTP "+requestBase.getMethod()+" " + requestBase.getURI().toString()+ "时，发生异常！请求参数：", e.getMessage());
+        }finally{
+            try{
+                if(response != null){
+                    response.close();
+                }
+                if(httpClient != null) {
+                    httpClient.close();
+                }
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    //endregion
+
+    //region 异步请求
+
+        //region get
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     *
+     * @param url                 请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @return 返回请求响应的HTML
+     */
+    public static void doAsyncGet(String url, String queryString,Consumer<String> callback) {
+        CloseableHttpAsyncClient client  = HttpAsyncClients.createDefault();
+        doAsyncGet(url,queryString,client,callback);
+    }
+
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     *
+     * @param url                 请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @return 返回请求响应的HTML
+     */
+    public static void doAsyncGet(String url, String queryString,RequestConfig reqConfig,Consumer<String> callback) {
+        CloseableHttpAsyncClient client  = HttpAsyncClients.createDefault();
+        doAsyncGet(url,queryString,reqConfig,client,(responseModel)->{
+            if(responseModel!=null&&responseModel.getCode()==HttpStatus.SC_OK){
+                callback.accept(responseModel.getContent());
+            }
+            callback.accept("");
+        });
+    }
+
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url   请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static void doAsyncGet(String url, String queryString, CloseableHttpAsyncClient client,Consumer<String> callback) {
+        doAsyncGet(url,queryString,null,null,client,(responseModel)->{
+            if(responseModel!=null&&responseModel.getCode()==HttpStatus.SC_OK){
+                callback.accept(responseModel.getContent());
+            }
+            callback.accept("");
+        });
+    }
+
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url   请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static void doAsyncGet(String url, String queryString,RequestConfig reqConfig, CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        doAsyncGet(url,queryString,null,reqConfig,client,callback);        
+    }
+    /**
+     * 执行一个HTTP Get请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param params 请求的参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static void doAsyncGet(String url, Map<String, String> params,Map<String, String> headers,Consumer<HttpResponseModel> callback) {
+        CloseableHttpAsyncClient client  = HttpAsyncClients.createDefault();
+        doAsyncGet(url,params,headers,client,callback);
+    }
+    /**
+     * 执行一个HTTP Get请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param params 请求的参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static void doAsyncGet(String url, Map<String, String> params,Map<String, String> headers,RequestConfig reqConfig,Consumer<HttpResponseModel> callback) {
+        CloseableHttpAsyncClient client  = HttpAsyncClients.createDefault();
+        doAsyncGet(url,params,headers,reqConfig,client,callback);
+    }
+
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryParams 请求的查询参数,可以为null
+     * @param headers http请求头中的参数
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static void doAsyncGet(String url, Map<String, String> queryParams, Map<String, String> headers, CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        doAsyncGet(url,queryParams,headers,null,client,callback);
+    }
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryParams 请求的查询参数,可以为null
+     * @param headers http请求头中的参数
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static void doAsyncGet(String url, Map<String, String> queryParams, Map<String, String> headers, RequestConfig reqConfig,CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        String queryString = "";
+        if (queryParams != null) {
+            try {
+                queryString = paramToQueryString(queryParams);
+                if( Strings.isNotBlank(queryString)){
+                    if(url.indexOf("?")>0 ){
+                        url +="&" + queryString;
+                    }else{
+                        url +="?" + queryString;
+                    }
+                }
+            }catch (Exception ex){
+                LogHelper.logger().error("执行HTTP Get" + url+ "时，序列化参数失败：", ex.getMessage());
+            }
+        }
+
+        doAsyncGet(url,queryString,headers,reqConfig,client,callback);
+    }
+
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @param headers http请求头中的参数
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static void doAsyncGet(String url, String queryString,Map<String, String> headers, CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        doAsyncGet(url,queryString,headers,null,client,callback);
+    }
+    /**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @param headers http请求头中的参数
+     * @param client  HttpClient实现类的实例对象
+     * @return
+     */
+    public static void doAsyncGet(String url, String queryString,Map<String, String> headers,RequestConfig reqConfig, CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        HttpGet httpGet = getHttpGet(url, queryString, headers, reqConfig);
+        doAsyncRequest(client,httpGet,callback);
+    }
+
+    //endregion
+
+    //region post
+
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param bodyParams 请求的参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, List<NameValuePair> bodyParams,Map<String, String> headers,Consumer<HttpResponseModel> callback) {
+        CloseableHttpAsyncClient client  = HttpAsyncClients.createDefault();
+        doAsyncPost(url,null,bodyParams,headers,null,client,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param bodyParams 请求的参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, List<NameValuePair> bodyParams,Map<String, String> headers, RequestConfig reqConfig,Consumer<HttpResponseModel> callback) {
+        CloseableHttpAsyncClient client  = HttpAsyncClients.createDefault();
+        doAsyncPost(url,null,bodyParams,headers,reqConfig,client,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param bodyParams 请求的参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, Map<String, String> bodyParams,Map<String, String> headers,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,null,bodyParams,headers,null,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param bodyParams 请求的参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, Map<String, String> bodyParams,Map<String, String> headers, RequestConfig reqConfig,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,null,bodyParams,headers,reqConfig,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers http请求头中的参数
+     * @return
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams,Map<String, String> bodyParams,Map<String, String> headers,Consumer<HttpResponseModel> callback) {
+
+        doAsyncPost(url,queryParams,bodyParams,headers,null,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     * @param url 请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers http请求头中的参数
+     * @return
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams,Map<String, String> bodyParams,Map<String, String> headers, RequestConfig reqConfig,Consumer<HttpResponseModel> callback) {
+
+        CloseableHttpAsyncClient client  = HttpAsyncClients.createDefault();
+        List<NameValuePair> nameValuePairs = null;
+        if(bodyParams!=null&&bodyParams.size()>0){
+            nameValuePairs = new ArrayList<>(bodyParams.size() );
+            for(String key : bodyParams.keySet()){
+                nameValuePairs.add(new BasicNameValuePair(key,bodyParams.get(key)));
+            }
+
+        }
+        doAsyncPost(url,queryParams,nameValuePairs,headers,reqConfig,client,callback);
+    }
+
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param entity  请求的实体信息,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, HttpEntity entity, Map<String, String> headers,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,entity,headers,null,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param entity  请求的实体信息,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, HttpEntity entity, Map<String, String> headers, RequestConfig reqConfig,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,null,entity,headers,reqConfig,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param entity  请求的实体信息,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url,Map<String, String> queryParams,  HttpEntity entity, Map<String, String> headers,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,queryParams,entity,headers,null,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param entity  请求的实体信息,可以为null
+     * @param headers 请求的header,可以为null
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url,Map<String, String> queryParams,  HttpEntity entity, Map<String, String> headers, RequestConfig reqConfig,Consumer<HttpResponseModel> callback) {
+        CloseableHttpAsyncClient client  = HttpAsyncClients.createDefault();
+        HttpPost httpPost = getHttpPost(url, queryParams, entity, headers, reqConfig);
+        doAsyncRequest(client,httpPost,callback);
+    }
+
+
+
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, List<NameValuePair> bodyParams,Map<String, String> headers,CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,bodyParams,headers,null,client,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, List<NameValuePair> bodyParams,Map<String, String> headers, RequestConfig reqConfig,CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,null,bodyParams,headers,reqConfig,client,callback);
+    }
+
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams, List<NameValuePair> bodyParams,Map<String, String> headers,CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,queryParams,bodyParams,headers,null,client,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams, List<NameValuePair> bodyParams,Map<String, String> headers, RequestConfig reqConfig,CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,queryParams,bodyParams,headers,null,null,reqConfig,client,callback);
+    }
+
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams, Map<String, String> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,queryParams,bodyParams,headers,fileName,fileBytes,null,null,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams, Map<String, String> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes, RequestConfig reqConfig,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,queryParams,bodyParams,headers,fileName,fileBytes,null,null,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams, Map<String, String> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes,CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,queryParams,bodyParams,headers,fileName,fileBytes,null,client,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams, Map<String, String> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes, RequestConfig reqConfig,CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        List<NameValuePair> nameValuePairs = null;
+        if(bodyParams!=null&&bodyParams.size()>0){
+            nameValuePairs = new ArrayList<>(bodyParams.size() );
+            for(String key : bodyParams.keySet()){
+                nameValuePairs.add(new BasicNameValuePair(key,bodyParams.get(key)));
+            }
+
+        }
+        doAsyncPost(url,queryParams,nameValuePairs,headers,fileName,fileBytes,null,client,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams, List<NameValuePair> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes,CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        doAsyncPost(url,queryParams,bodyParams,headers,fileName,fileBytes,null,client,callback);
+    }
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url        请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param bodyParams 请求的form参数,可以为null
+     * @param headers 请求的header,可以为null
+     * @param fileName  上传的文件名
+     * @param fileBytes  上传的文件流
+     * @param client  HttpClient实现类的实例对象
+     * @return 返回请求响应
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams, List<NameValuePair> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes, RequestConfig reqConfig,CloseableHttpAsyncClient client,Consumer<HttpResponseModel> callback) {
+        if(client==null){
+            client  =  HttpAsyncClients.createDefault();
+        }
+        HttpPost httpPost = getHttpPost(url,queryParams,bodyParams,headers,fileName,fileBytes,reqConfig);
+        doAsyncRequest(client,httpPost,callback);
+    }
+
+      //endregion
+
+
+
+    private static void doAsyncRequest(CloseableHttpAsyncClient httpAsyncClient,HttpRequestBase requestBase,Consumer<HttpResponseModel> callback){
+       
+        httpAsyncClient.execute(requestBase, new FutureCallback<HttpResponse>() {
+
+            public void completed(final HttpResponse response) {
+                try{
+                    closeHttpAsyncClient(httpAsyncClient);
+                    HttpResponseModel result=new HttpResponseModel();
+                    result.code=response.getStatusLine().getStatusCode();
+                    result.content = EntityUtils.toString(response.getEntity(), "UTF-8");
+                    callback.accept(result);
+                }catch(Exception e){
+                    LogHelper.logger().error("执行HTTP "+requestBase.getMethod()+" " + requestBase.getURI().toString()+ "时，读取结果失败：", e.getMessage());
+                }
+            }
+
+            public void failed(final Exception ex) {                
+                closeHttpAsyncClient(httpAsyncClient);
+                LogHelper.logger().error("执行HTTP "+requestBase.getMethod()+" " + requestBase.getURI().toString()+ "时，发生异常！请求参数：", ex.getMessage());
+            }
+            public void cancelled() {
+                closeHttpAsyncClient(httpAsyncClient);
+            }
+
+        }); 
+    }
+    private static void closeHttpAsyncClient(CloseableHttpAsyncClient httpAsyncClient){
+        try {
+            httpAsyncClient.close();
+        } catch (IOException e) {
+        }
+    }
+    //endregion
+
+
+    //region private
+    private static HttpGet getHttpGet(String url, String queryString,Map<String, String> headers,RequestConfig reqConfig){
+        HttpGet httpGet = new HttpGet(url);
+        if(queryString==null){
+            queryString="";
+        }
+        if(headers!=null){
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                httpGet.setHeader(entry.getKey(), entry.getValue());
+            }
+        }
+        try{
+            httpGet.setURI(new URIBuilder(httpGet.getURI().toString() + queryString).build());
+        }catch (URISyntaxException e) {
+            LogHelper.logger().error("执行HTTP Get请求时，编码查询字符串“" + queryString + "”发生异常！", e);
+        }
+        if(reqConfig==null){
+            reqConfig = RequestConfig.custom().setConnectionRequestTimeout(5000).setConnectTimeout(10000) // 设置连接超时时间
+                    .setSocketTimeout(10000) // 设置读取超时时间
+                    .setExpectContinueEnabled(false)
+                    .setCircularRedirectsAllowed(true) // 允许多次重定向
+                    .build();
+        }
+        httpGet.setConfig(reqConfig);
+        return httpGet;
+    }
+ 
+    private static HttpPost getHttpPost(String url,Map<String, String> queryParams,  HttpEntity entity, Map<String, String> headers, RequestConfig reqConfig){
+        HttpPost httpPost = new HttpPost(url);
+        String queryString ="";
+        try {
+            queryString = paramToQueryString(queryParams);
+            if( Strings.isNotBlank(queryString) ){
+                if(url.indexOf("?")>0 ){
+                    url +="&" + queryString;
+                }else{
+                    url +="?" + queryString;
+                }
+            }
+        }catch (Exception ex){
+            LogHelper.logger().error("执行HTTP Post" + url+ "时，序列化queryParams参数失败：", ex.getMessage());
+        }
+
+        if (entity != null) {
+            httpPost.setEntity(entity);
+        }
+        if(headers!=null){
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                httpPost.setHeader(entry.getKey(), entry.getValue());
+            }
+        }
+        if(reqConfig==null){
+            reqConfig = RequestConfig.custom().setConnectionRequestTimeout(5000).setConnectTimeout(10000) // 设置连接超时时间
+                    .setSocketTimeout(10000) // 设置读取超时时间
+                    .setExpectContinueEnabled(false)
+                    .setCircularRedirectsAllowed(true) // 允许多次重定向
+                    .build();
+        }
+        httpPost.setConfig(reqConfig);
+        return httpPost;
+    }
+ 
+    private static HttpPost getHttpPost(String url, Map<String, String> queryParams, List<NameValuePair> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes, RequestConfig reqConfig){
         HttpPost httpPost = new HttpPost(url);
         //设置Http Post数据
         String queryString ="";
         try {
             queryString = paramToQueryString(queryParams);
-            if(  queryString!=null && "".equals(queryParams)){
+            if(  queryString!=null ){
                 if(url.indexOf("?")>0 ){
                     url +="&" + queryString;
                 }else{
@@ -671,53 +1213,9 @@ public class HttpRequestUtil {
                     .build();
         }
         httpPost.setConfig(reqConfig);
-        return doRequest(client,httpPost);
+        return httpPost;
     }
-
-
+ 
     //endregion
-
-
-    private static String paramToQueryString( Map<String, String> queryParams) throws Exception{
-        String result ="";
-        if (queryParams != null) {
-            List<NameValuePair> queryPairs=new ArrayList<>(queryParams.size());
-            for (Map.Entry<String, String> entry : queryParams.entrySet()) {
-                queryPairs.add(new BasicNameValuePair(entry.getKey(),entry.getValue()));
-            }
-            if(queryPairs.size()>0){
-                result = EntityUtils.toString(new UrlEncodedFormEntity(queryPairs));
-            }
-        }
-        return  result;
-    }
-
-    private static HttpResponseModel doRequest(CloseableHttpClient httpClient,HttpRequestBase requestBase){
-        HttpResponseModel result=new HttpResponseModel();
-        //CloseableHttpClient httpClient = null;
-        CloseableHttpResponse response = null;
-        try{
-
-//			httpPut.setConfig(config);
-            response = httpClient.execute(requestBase);
-            result.code=response.getStatusLine().getStatusCode();
-            result.content = EntityUtils.toString(response.getEntity(), "UTF-8");
-        }catch(Exception e){
-            LogHelper.logger().error("执行HTTP "+requestBase.getMethod()+" " + requestBase.getURI().toString()+ "时，发生异常！请求参数：", e.getMessage());
-        }finally{
-            try{
-                if(response != null){
-                    response.close();
-                }
-                if(httpClient != null) {
-                    httpClient.close();
-                }
-            }catch(IOException e){
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
-
 }
 
