@@ -16,23 +16,23 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!--&lt;!&ndash; https://mvnrepository.com/artifact/org.apache.commons/com.springsource.org.apache.commons.httpclient &ndash;&gt;-->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.commons</groupId>-->
-        <!--<artifactId>com.springsource.org.apache.commons.httpclient</artifactId>-->
-        <!--</dependency>-->
+        <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.14.7</version>
+        </dependency>
+
+
         <!-- https://mvnrepository.com/artifact/commons-httpclient/commons-httpclient -->
         <dependency>
-            <!--<groupId>commons-httpclient</groupId>-->
-            <!--<artifactId>commons-httpclient</artifactId>-->
-
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>        
-        <dependency>
+        <!-- <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpasyncclient</artifactId>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>

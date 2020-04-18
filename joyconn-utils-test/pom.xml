@@ -27,7 +27,16 @@
         <artifactId>joyconn-utils-elasticsearch</artifactId>
         <version>${joyconn.version}</version>
     </dependency>
-
+    <dependency>
+        <groupId>cn.joyconn.utils</groupId>
+        <artifactId>joyconn-utils-netutils</artifactId>
+        <version>${joyconn.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>cn.joyconn.utils</groupId>
+        <artifactId>joyconn-utils-loghelper</artifactId>
+        <version>${joyconn.version}</version>
+    </dependency>
 </dependencies>
 
     <build>
