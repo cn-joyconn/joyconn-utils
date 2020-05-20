@@ -29,12 +29,20 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
  * Created by Eric.Zhang on 2017/1/11.
  */
 public class OkHttp3ClientUtil {
+
+    private static final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(false)
+            .build();
 
     // region 同步请求
 
@@ -289,7 +297,7 @@ public class OkHttp3ClientUtil {
     private static Response doSyncRequest(OkHttpClient okHttpClient,Request request) {
      
         if(okHttpClient==null){
-            okHttpClient = new OkHttpClient();            
+            okHttpClient = client;            
         }
         Response result = null;
 		try {
@@ -558,7 +566,7 @@ public class OkHttp3ClientUtil {
 
     private static void doAsyncRequest(OkHttpClient okHttpClient,Request request,  Consumer<Response> callback) {
         if(okHttpClient==null){
-            okHttpClient = new OkHttpClient();            
+            okHttpClient = client;            
         }
         okHttpClient.newCall(request).enqueue(new Callback() {           
             public void onFailure(Call call, IOException e) {
