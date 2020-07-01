@@ -27,6 +27,7 @@
         <module>joyconn-utils-pay</module>
         <module>joyconn-utils-QRCodeUtil</module>
         <module>joyconn-utils-webutils</module>
+        <module>joyconn-utils-SpringUtils</module>
         <module>joyconn-utils-datasource</module>
         <module>joyconn-utils-threads</module>
         <module>joyconn-utils-elasticsearch</module>
