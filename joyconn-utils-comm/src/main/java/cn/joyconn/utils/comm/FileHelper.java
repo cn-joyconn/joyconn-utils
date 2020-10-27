@@ -168,6 +168,66 @@ public class FileHelper {
     /**
      * 追加文件：使用FileWriter
      */
+    public static boolean appendString(String fileName, String content,String charset) {
+        File file=new File(fileName);
+        if(!file.getParentFile().exists()){
+            file.getParentFile().mkdirs();
+        }
+        if(!file.exists())
+        {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        try {
+            //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
+            OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(fileName,true),charset);
+            BufferedWriter writer=new BufferedWriter(write);
+            writer.write(content);
+            writer.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    /**
+     * 追加文件：使用FileWriter
+     */
+    public static boolean appendLineString(String fileName, String content,String lineChar,String charset) {
+        File file=new File(fileName);
+        if(!file.getParentFile().exists()){
+            file.getParentFile().mkdirs();
+        }
+        if(!file.exists())
+        {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        try {
+            //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
+            OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(fileName,true),charset);
+            BufferedWriter writer=new BufferedWriter(write);
+            writer.write(content);
+            writer.write(lineChar);
+            writer.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+   
+    /**
+     * 追加文件：使用FileWriter
+     */
     public static boolean appendchars(String fileName, char[] content) {
         try {
             //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
