@@ -149,6 +149,34 @@ public class FileHelper {
 
 
     }
+    
+    /**
+     * 以行为单位读取文件，常用于读面向行的格式化文件
+     */
+    public static String readStrFromFile(String fileName,String charset) {
+
+        File file = new File(fileName);
+        Long filelength = file.length();
+        byte[] filecontent = new byte[filelength.intValue()];
+        try {
+            FileInputStream in = new FileInputStream(file);
+            in.read(filecontent);
+            in.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            return new String(filecontent, charset);
+        } catch (UnsupportedEncodingException e) {
+            System.err.println("The OS does not support " + charset);
+            e.printStackTrace();
+            return null;
+        }
+
+
+    }
     /**
      * 追加文件：使用FileWriter
      */
