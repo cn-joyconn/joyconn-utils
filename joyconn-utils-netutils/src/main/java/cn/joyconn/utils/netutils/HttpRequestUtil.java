@@ -525,7 +525,7 @@ public class HttpRequestUtil {
      * @return 返回请求响应
      */
     public static HttpResponseModel doPost(String url, Map<String, String> queryParams, Map<String, String> bodyParams,Map<String, String> headers,String fileName,byte [] fileBytes, RequestConfig reqConfig) {
-        return doPost(url,queryParams,bodyParams,headers,fileName,fileBytes,null,null);
+        return doPost(url,queryParams,bodyParams,headers,fileName,fileBytes,reqConfig,null);
     }
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
@@ -563,7 +563,7 @@ public class HttpRequestUtil {
             }
 
         }
-        return doPost(url,queryParams,nameValuePairs,headers,fileName,fileBytes,null,client);
+        return doPost(url,queryParams,nameValuePairs,headers,fileName,fileBytes,reqConfig,client);
     }
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容

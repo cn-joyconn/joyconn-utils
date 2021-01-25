@@ -21,7 +21,7 @@ public class SnowflakeWorkId {
     private  long workerIdBits = 10L;
 
 
-    /** 支持的最大机器id，结果是31 (这个移位算法可以很快的计算出几位二进制数所能表示的最大十进制数) */
+    /** 支持的最大机器id，结果是1024 (这个移位算法可以很快的计算出几位二进制数所能表示的最大十进制数) */
     private  long maxWorkerId = -1L ^ (-1L << workerIdBits);
 
 
