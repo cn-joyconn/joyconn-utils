@@ -273,7 +273,7 @@ public class HttpRequestUtil {
         if (queryParams != null) {
             try {
                 queryString = paramToQueryString(queryParams);
-                if(  queryString!=null && !"".equals(queryParams)){
+                if(  Strings.isNotBlank(queryString) ){
                     if(url.indexOf("?")>0 ){
                         url +="&" + queryString;
                     }else{
@@ -285,7 +285,7 @@ public class HttpRequestUtil {
             }
         }
 
-        return doGet(url,queryString,headers,reqConfig,client);
+        return doGet(url,"",headers,reqConfig,client);
     }
 
     /**
