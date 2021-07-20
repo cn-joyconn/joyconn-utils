@@ -15,6 +15,7 @@ public class LoginTokenID implements  Serializable{
      String  token_ekey = "I?vek0w\\";
     String uid;
     String pwd;
+    String state;
     int timestamp;
     int machine;
     short pid;
@@ -41,6 +42,9 @@ public class LoginTokenID implements  Serializable{
     }
     public  String getPwd(){
         return pwd;
+    }
+    public  String getState(){
+        return state;
     }
     public  Date getDate(){
         return getUniqueObjectID().getDate();
@@ -69,19 +73,29 @@ public class LoginTokenID implements  Serializable{
         String[] stemp = tokenStr.split("\f" );
         try
         {
-            if (stemp.length == 4)
+            if (stemp.length == 5)
+            {
+                uid = stemp[0];
+                pwd = stemp[1];
+                state = stemp[2];
+                uniqueObjectID = new DBObjectID(stemp[3]);
+                timestamp = Integer.parseInt(stemp[4]);
+            }
+            else if (stemp.length == 4)
             {
                 uid = stemp[0];
                 pwd = stemp[1];
                 uniqueObjectID = new DBObjectID(stemp[2]);
                 timestamp = Integer.parseInt(stemp[3]);
+                state = "";
             }
             else if (stemp.length == 3)
             {
                 uid = stemp[0];
                 pwd = stemp[1];
                 uniqueObjectID = new DBObjectID(stemp[2]);
-                timestamp = uniqueObjectID.getTimestamp();//.GetTimestampFromDateTime(DateTime.UtcNow);
+                timestamp = uniqueObjectID.getTimestamp();//.GetTimestampFromDateTime(DateTime.UtcNow);                
+                state = "";
             }
 
         }
@@ -106,7 +120,7 @@ public class LoginTokenID implements  Serializable{
      * @param password 密码
      * Created by Eric.Zhang on 2016/12/29.
      */
-    public LoginTokenID(String userid, String password,String token_ekey)
+    public LoginTokenID(String userid, String password,String state,String token_ekey)
     {
         uniqueObjectID = new DBObjectID();
         timestamp = uniqueObjectID.getTimestamp();
@@ -115,6 +129,7 @@ public class LoginTokenID implements  Serializable{
         increment = uniqueObjectID.getCounter();
         uid = userid;
         pwd = password;
+        this.state = state;
         this.token_ekey=token_ekey;
     }
 
@@ -141,7 +156,7 @@ public class LoginTokenID implements  Serializable{
     public String toString()  {
         String result="";
         try{
-            String temp=getUid() + "\f" + getPwd() + "\f" + getUniqueObjectID().toString() + "\f" + getTimestamp();
+            String temp=getUid() + "\f" + getPwd() + "\f" + getState() + "\f" + getUniqueObjectID().toString() + "\f" + getTimestamp();
             result= AesUtils.encryptStr(temp,token_ekey );
         }
         catch (Exception e){
