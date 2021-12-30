@@ -12,7 +12,7 @@ import java.util.Date;
  *  用户令牌
  */
 public class LoginTokenID implements  Serializable{
-     String  token_ekey = "I?vek0w\\";
+    String  token_ekey = "I?vek0w\\";
     String uid;
     String pwd;
     String state;

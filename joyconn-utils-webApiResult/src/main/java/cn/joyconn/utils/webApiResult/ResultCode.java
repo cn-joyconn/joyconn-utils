@@ -58,7 +58,11 @@ public enum ResultCode {
     @ApiModelProperty(value = "邮箱已存在")
     EmailExisit,
     @ApiModelProperty(value = "用户名已存在")
-   UserNameExisit,
+    UserNameExisit,
+    @ApiModelProperty(value = "时间戳错误")
+    TimeStrErr,
+    @ApiModelProperty(value = "校验值错误")
+    SignStrErr,
 
 
 }
