@@ -30,6 +30,9 @@ public class UploadFileUtil {
     // 临时文件目录
     @Value("${joyconn.uploadfile.save.temppath}")
     private String saveTempPath;
+    // 缓冲区文件大小
+    @Value("${joyconn.uploadfile.save.temppath.size:1}")
+    private int tempPathSize;
     @Value("${joyconn.uploadfile.save.root}")
     private String saveUploadRoot;
 
@@ -41,6 +44,8 @@ public class UploadFileUtil {
     //远程目录
     @Value("${joyconn.uploadfile.save.remoteUploadkey}")
     private String remoteUploadkey;
+
+    
 
 
 
@@ -97,7 +102,7 @@ public class UploadFileUtil {
         DiskFileItemFactory factory = new DiskFileItemFactory();
 
         // Set factory constraints
-        factory.setSizeThreshold(1024 * 1024); // 设置缓冲区大小，这里是1mb
+        factory.setSizeThreshold(tempPathSize*1024 * 1024); // 设置缓冲区大小，这里是1mb
         factory.setRepository(fileSaveVal.getTempPathFile());// 设置缓冲区目录
 
         // Create a new file upload handler
