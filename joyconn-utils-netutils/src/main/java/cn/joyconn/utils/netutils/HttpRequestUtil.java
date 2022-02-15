@@ -1110,6 +1110,16 @@ public class HttpRequestUtil {
 
     //region private
     private static HttpGet getHttpGet(String url, String queryString,Map<String, String> headers,RequestConfig reqConfig){
+        String urlPath="";
+        if(!Strings.isBlank(queryString)){
+            if(url.indexOf("?")<0){
+                urlPath=url+"?"+queryString;
+            }else{                
+                urlPath=url+"&"+queryString;
+            }
+        }else{
+            urlPath=url;
+        }
         HttpGet httpGet = new HttpGet(url);
         if(queryString==null){
             queryString="";
@@ -1120,8 +1130,8 @@ public class HttpRequestUtil {
             }
         }
         try{
-            httpGet.setURI(new URIBuilder(httpGet.getURI().toString() + queryString).build());
-        }catch (URISyntaxException e) {
+            httpGet.setURI(new URIBuilder(urlPath).build());
+        }catch (Exception e) {
             LogHelper.logger().error("执行HTTP Get请求时，编码查询字符串“" + queryString + "”发生异常！", e);
         }
         if(reqConfig==null){
