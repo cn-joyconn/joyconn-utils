@@ -31,7 +31,6 @@
         <module>joyconn-utils-datasource</module>
         <module>joyconn-utils-threads</module>
         <module>joyconn-utils-elasticsearch</module>
-        <module>joyconn-utils-flowable</module>
         <module>joyconn-utils-test</module>
     </modules>
 

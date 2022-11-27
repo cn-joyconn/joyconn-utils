@@ -12,9 +12,9 @@ import java.util.concurrent.*;
 @Service
 public class JoyConnExecutorService {
     ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("joyconn-thread-call-runner-%d").build();
-    @Value("${joyconn.ThreadPoolExecutor.min}")
+    @Value("${joyconn.ThreadPoolExecutor.min:2}")
     Integer minSize;
-    @Value("${joyconn.ThreadPoolExecutor.max}")
+    @Value("${joyconn.ThreadPoolExecutor.max:10}")
     Integer maxSize;
     static ExecutorService executorService=null;
 
