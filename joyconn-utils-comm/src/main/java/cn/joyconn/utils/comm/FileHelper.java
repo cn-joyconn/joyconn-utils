@@ -177,6 +177,29 @@ public class FileHelper {
 
 
     }
+        /**
+     * 以行为单位读取文件，常用于读面向行的格式化文件
+     */
+    public static byte[] readBytesFromFile(String fileName) {
+
+        File file = new File(fileName);
+        Long filelength = file.length();
+        byte[] filecontent = new byte[filelength.intValue()];
+        try {
+            FileInputStream in = new FileInputStream(file);
+            in.read(filecontent);
+            in.close();
+        } catch (FileNotFoundException e) {
+            filecontent= null;
+            e.printStackTrace();
+        } catch (IOException e) {
+            filecontent= null;
+            e.printStackTrace();
+        }
+        return filecontent;
+
+
+    }
     /**
      * 追加文件：使用FileWriter
      */
@@ -298,7 +321,6 @@ public class FileHelper {
         return false;
     }
     /**
-     * 追加文件：使用FileWriter
      */
     public static boolean writeFile(String fileName, String content) {
         File file=new File(fileName);
@@ -326,7 +348,6 @@ public class FileHelper {
         return false;
     }
     /**
-     * 追加文件：使用FileWriter
      */
     public static boolean writeFile(String fileName, char[] content) {
         File file=new File(fileName);
@@ -353,7 +374,32 @@ public class FileHelper {
         }
         return false;
     }
-
+    /**
+     */
+    public static boolean writeFile(String fileName, byte[] content) {
+        File file=new File(fileName);
+        if(!file.getParentFile().exists()){
+            file.getParentFile().mkdirs();
+        }
+        if(!file.exists())
+        {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
+            FileOutputStream oStreamWriter = new FileOutputStream(file);
+            oStreamWriter.write(content);
+            oStreamWriter.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
     /**
      * 删除单个文件
      *
