@@ -36,12 +36,6 @@
             <artifactId>protostuff-runtime</artifactId>
             <version>1.8.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.flatbuffers</groupId>
-            <artifactId>flatbuffers-java</artifactId>
-            <version>22.12.06</version>
-            <!-- <type>bundle</type> -->
-        </dependency>
     </dependencies>
 
 </project>
