@@ -17,12 +17,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.21.11</version>
-        </dependency>
         
                 <!-- https://mvnrepository.com/artifact/io.protostuff/protostuff-api -->
         <dependency>
