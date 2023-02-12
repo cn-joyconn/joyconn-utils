@@ -41,9 +41,7 @@ public class DataSourceContextHolder {
         DruidDataSource dataSource = new DruidDataSource();
 
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://"
-                + sourceData.getServer() + ":" + sourceData.getPort()
-                + "/" + sourceData.getDatabase()+"?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8");
+        dataSource.setUrl(getDBUrl(sourceData));
         dataSource.setUsername(sourceData.getUser());
         dataSource.setPassword(sourceData.getPsw());
         dataSource.setInitialSize(1);
@@ -51,7 +49,13 @@ public class DataSourceContextHolder {
 
         return dataSource;
     }
-    private static SourceData parse(String source) {
+    public static String getDBUrl(SourceData sourceData){
+        String params="useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8"; 
+        String url = String.format("jdbc:mysql://%s:%d/%s?%s", 
+            sourceData.getServer(),sourceData.getPort(),sourceData.getDatabase(),params);
+        return url;
+    }
+    public static SourceData parse(String source) {
 
         if (source == null || source.equals("")) {
             return null;
