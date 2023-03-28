@@ -24,13 +24,22 @@ public class AesUtils
     public static String decryptStr(String encryptResultStr, String password){
         byte[] decryptFrom = parseHexStr2Byte(encryptResultStr);
         byte[] decryptResult = decrypt(decryptFrom, password);
-        return  new String(decryptResult);
+        try {            
+            return  new String(decryptResult,"utf-8");
+        } catch (Exception e) {
+           return "";
+        }
     }
 
     public static String decryptStr(String encryptResultStr, String password,String iv){
         byte[] decryptFrom = parseHexStr2Byte(encryptResultStr);
         byte[] decryptResult = decrypt(decryptFrom, password,iv);
-        return  new String(decryptResult);
+        // return  new String(decryptResult);
+        try {            
+            return  new String(decryptResult,"utf-8");
+        } catch (Exception e) {
+           return "";
+        }
     }
     /**
      * 加密
