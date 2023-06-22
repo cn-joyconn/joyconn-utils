@@ -24,7 +24,7 @@ import java.util.Map;
  * Created by Eric.Zhang on 2017/3/13.
  */
 @Service
-public class uploadFileUtil {
+public class UploadFileUtil {
     @Value("${joyconn.uploadfile.save.uploadRemote:}")
     private  String uploadRemote;
     // 临时文件目录
