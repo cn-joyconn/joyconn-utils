@@ -6,6 +6,8 @@ import cn.joyconn.utils.loghelper.LogHelper;
 import cn.joyconn.utils.netutils.HttpRequestUtil;
 import cn.joyconn.utils.netutils.OkHttp3ClientUtil;
 import cn.joyconn.utils.test.testData.PointTestData;
+import cn.joyconn.utils.uniqueID.TinyNextId;
+import cn.joyconn.utils.uniqueID.idgenerator.IDGeneratorHelper;
 import okhttp3.Response;
 
 import org.apache.commons.io.IOUtils;
@@ -28,10 +30,16 @@ import java.util.Map;
 public class TestApi {
     @Autowired
     RestHighLevelClientService restHighLevelClientService;
+    @Autowired
+    IDGeneratorHelper idGeneratorHelper;
 
+    @Autowired
+    TinyNextId tinyNextId;
     @RequestMapping("test")
     String test(HttpServletResponse httpServletResponse) throws IOException {
-
+        
+        LogHelper.logger().info("idGeneratorHelper:"+ idGeneratorHelper.nextId());
+        LogHelper.logger().info("idGeneratorHelper:"+ tinyNextId.nextId());
 //        RestClientAutoConfiguration.RestHighLevelClientConfiguration ss =new org.springframework.boot.autoconfigure.elasticsearch.rest.RestClientAutoConfiguration.RestHighLevelClientConfiguration();
         String source = "{" +
                 "\"title\" : \"耐苦无领运动半袖新AAA\"," +
