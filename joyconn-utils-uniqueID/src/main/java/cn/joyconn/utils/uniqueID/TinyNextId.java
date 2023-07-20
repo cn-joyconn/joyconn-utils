@@ -70,7 +70,13 @@ public class TinyNextId {
         }
         this.workerId = SnowflakeWorkID;
     }
-
+   public TinyNextId(int _SnowflakeWorkID) {
+    
+        if (_SnowflakeWorkID > maxWorkerId || _SnowflakeWorkID < 0) {
+            throw new IllegalArgumentException(String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
+        }
+        this.workerId = _SnowflakeWorkID;
+    }
     // ==============================Methods==========================================
     /**
      * 获得下一个ID (该方法是线程安全的)
