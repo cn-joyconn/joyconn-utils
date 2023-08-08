@@ -21,7 +21,7 @@ public class TinyNextId {
 
 
     @Value("${joyconn.utils.idgenerator.SnowflakeWorkID:1}")
-    short SnowflakeWorkID;
+    public short SnowflakeWorkID;
      // ==============================Fields===========================================
     /** 开始时间截 (2020-01-01) */
     // private final long twepoch = 1420041600000L;
