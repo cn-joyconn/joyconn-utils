@@ -20,8 +20,9 @@ import org.springframework.stereotype.Service;
 public class TinyNextId {
 
 
+    // /** 工作机器ID (范围受机器id所占的位数影响， 机器id所占的位数=5L时，范围0~31) */
     @Value("${joyconn.utils.idgenerator.SnowflakeWorkID:1}")
-    public short SnowflakeWorkID;
+    public short workerId;
      // ==============================Fields===========================================
     /** 开始时间截 (2020-01-01) */
     // private final long twepoch = 1420041600000L;
@@ -48,8 +49,6 @@ public class TinyNextId {
     /** 生成序列的掩码，这里为4095 (0b111111111111=0xfff=4095) */
     private final long sequenceMask = -1L ^ (-1L << sequenceBits);
 
-    // /** 工作机器ID (范围受机器id所占的位数影响， 机器id所占的位数=5L时，范围0~31) */
-    private long workerId;
 
 
     /** 毫秒内序列(0~4095) */
@@ -65,12 +64,11 @@ public class TinyNextId {
      */
     public TinyNextId() {
     
-        if (SnowflakeWorkID > maxWorkerId || SnowflakeWorkID < 0) {
+        if (workerId > maxWorkerId || workerId < 0) {
             throw new IllegalArgumentException(String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
         }
-        this.workerId = SnowflakeWorkID;
     }
-   public TinyNextId(int _SnowflakeWorkID) {
+   public TinyNextId(short _SnowflakeWorkID) {
     
         if (_SnowflakeWorkID > maxWorkerId || _SnowflakeWorkID < 0) {
             throw new IllegalArgumentException(String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
