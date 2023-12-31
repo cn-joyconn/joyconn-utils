@@ -1,6 +1,6 @@
 package com.github.wxpay.sdk;
 
-import sun.net.www.http.HttpClient;
+// import sun.net.www.http.HttpClient;
 
 /**
  * 常量
@@ -19,8 +19,10 @@ public class WXPayConstants {
     public static final String FIELD_SIGN_TYPE = "sign_type";
     public static final String WXPAYSDK_VERSION = "WXPaySDK/3.0.9";
     public static final String USER_AGENT = WXPAYSDK_VERSION +
+            // " (" + System.getProperty("os.arch") + " " + System.getProperty("os.name") + " " + System.getProperty("os.version") +
+            // ") Java/" + System.getProperty("java.version") + " HttpClient/" + HttpClient.class.getPackage().getImplementationVersion();
             " (" + System.getProperty("os.arch") + " " + System.getProperty("os.name") + " " + System.getProperty("os.version") +
-            ") Java/" + System.getProperty("java.version") + " HttpClient/" + HttpClient.class.getPackage().getImplementationVersion();
+            ") Java/" + System.getProperty("java.version") ;
     public static final String MICROPAY_URL_SUFFIX = "/pay/micropay";
     public static final String UNIFIEDORDER_URL_SUFFIX = "/pay/unifiedorder";
     public static final String ORDERQUERY_URL_SUFFIX = "/pay/orderquery";

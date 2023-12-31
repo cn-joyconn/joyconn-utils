@@ -3,8 +3,7 @@ package cn.joyconn.utils.encrypt;
  * Created by Eric.Zhang on 2017/3/13.
  */
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+
 
 import javax.crypto.*;
 import javax.crypto.spec.DESKeySpec;
@@ -13,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
+import java.util.Base64;
 
 
 public class DesUtil {
@@ -66,16 +66,14 @@ public class DesUtil {
         byte [] byteMi = null ;
         byte [] byteMing = null ;
         String strMi = "" ;
-        BASE64Encoder base64en = new BASE64Encoder();
         try {
             byteMing = strMing.getBytes( "UTF8" );
             byteMi = this .encryptByte(byteMing);
-            strMi = base64en.encode(byteMi);
+            strMi = Base64.getEncoder().encodeToString(byteMi);
         } catch (Exception e) {
             throw new RuntimeException(
                     "Error encryptStr. Cause: " + e);
         } finally {
-            base64en = null ;
             byteMing = null ;
             byteMi = null ;
         }
@@ -88,19 +86,17 @@ public class DesUtil {
      * @param strMi
      */
     public String decryptStr(String strMi) {
-        BASE64Decoder base64De = new BASE64Decoder();
         byte [] byteMing = null ;
         byte [] byteMi = null ;
         String strMing = "" ;
         try {
-            byteMi = base64De.decodeBuffer(strMi);
+            byteMi =  Base64.getDecoder().decode(strMi);
             byteMing = this .decryptByte(byteMi);
             strMing = new String(byteMing, "UTF8" );
         } catch (Exception e) {
             throw new RuntimeException(
                     "Error decryptStr. Cause: " + e);
         } finally {
-            base64De = null ;
             byteMing = null ;
             byteMi = null ;
         }
