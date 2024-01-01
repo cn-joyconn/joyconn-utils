@@ -120,7 +120,7 @@ public class DataSourceContextHolder {
             if (this.getClass() != otherObject.getClass()) return false;
 
             //情况2：如果所有的子类均使用统一的语义(那么此时的equals方法应该置为final)，就使用instanceof检测
-//		if( !(this instanceof Person) ) return false;
+            // if( !(this instanceof Person) ) return false;
 
             //此时，将otherObject转化为相应的类型
             SourceData person = (SourceData) otherObject;

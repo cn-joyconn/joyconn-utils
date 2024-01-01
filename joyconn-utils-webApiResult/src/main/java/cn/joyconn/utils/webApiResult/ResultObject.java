@@ -1,20 +1,20 @@
 package cn.joyconn.utils.webApiResult;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Created by Eric.Zhang on 2017/3/13.
  */
-@ApiModel
+@Tag(name ="返回值")
 public class ResultObject<T> {
-    @ApiModelProperty(value = "查询的页面大小")
+    @Schema(description  = "查询的页面大小")
     private ResultCode code;
-    @ApiModelProperty(value = "错误详细信息")
+    @Schema(description  = "错误详细信息")
     private String errorMsg;
-    @ApiModelProperty(value = "结果数据体")
+    @Schema(description  = "结果数据体")
     private  T result;
-    @ApiModelProperty(value = "符合条件的总条数,只在分页查询中有效")
+    @Schema(description  = "符合条件的总条数,只在分页查询中有效")
     private  Long allcount;
 
 
