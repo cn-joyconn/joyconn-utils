@@ -393,7 +393,20 @@ public class OkHttp3ClientUtil {
         doAsyncGet(url, queryString, headers,  okHttpClient, callback);
     }
 
-
+/**
+     * 执行一个HTTP GET请求，返回请求响应的内容
+     * 
+     * @param url         请求的URL地址
+     * @param queryString 请求的查询参数,可以为null
+     * @param headers     http请求头中的参数
+     * @param okHttpClient      OkHttpClient实现类的实例对象
+     * @return
+     */
+    public static void doAsyncGet(String url, String queryString, Map<String, String> headers, OkHttpClient okHttpClient, Consumer<Response> callback) {
+     
+    
+        doAsyncGet(url, queryString, headers,okHttpClient,callback,null);
+    }
 
     /**
      * 执行一个HTTP GET请求，返回请求响应的内容
@@ -404,7 +417,7 @@ public class OkHttp3ClientUtil {
      * @param okHttpClient      OkHttpClient实现类的实例对象
      * @return
      */
-    public static void doAsyncGet(String url, String queryString, Map<String, String> headers, OkHttpClient okHttpClient, Consumer<Response> callback) {
+    public static void doAsyncGet(String url, String queryString, Map<String, String> headers, OkHttpClient okHttpClient, Consumer<Response> callback,  Consumer<IOException> failCallback) {
         String requestUrl = url;
         if(Strings.isNotBlank(queryString)){
             requestUrl+=( url.indexOf("?")>0?"?":"&" )+queryString;
@@ -415,7 +428,7 @@ public class OkHttp3ClientUtil {
                 .get()
                 .build();
     
-        doAsyncRequest(okHttpClient, request, callback);
+        doAsyncRequest(okHttpClient, request, callback,failCallback);
     }
 
     // endregion
@@ -463,7 +476,6 @@ public class OkHttp3ClientUtil {
     }
 
   
-
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
      *
@@ -473,13 +485,25 @@ public class OkHttp3ClientUtil {
      * @param headers     请求的header,可以为null
      */
     public static void doAsyncPost(String url, Map<String, String> queryParams, RequestBody requestBody,  Map<String, String> headers, Consumer<Response> callback) {
+        doAsyncPost(url, queryParams, requestBody,headers,callback,null);
+    }
+
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url         请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param requestBody      请求的实体信息,可以为null
+     * @param headers     请求的header,可以为null
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams, RequestBody requestBody,  Map<String, String> headers, Consumer<Response> callback,  Consumer<IOException> failCallback) {
         Request request = new Request.Builder()
         .url(url + setUrlParams(url ,queryParams))
         .headers(setHeaders(headers))
         .post(requestBody)
         .build();
 
-        doAsyncRequest(null, request, callback);
+        doAsyncRequest(null, request, callback,failCallback);
     }
 
 
@@ -541,6 +565,22 @@ public class OkHttp3ClientUtil {
     public static void doAsyncPost(String url, Map<String, String> queryParams, Map<String, String>  bodyParams, Map<String, String> headers, String fileName, byte[] fileBytes,OkHttpClient okHttpClient,Consumer<Response> callback) {
         doAsyncPost(url, queryParams, bodyParams, headers, fileName,"", fileBytes, okHttpClient,  callback);
     }
+    /**
+      * 执行一个HTTP POST请求，返回请求响应的内容
+      *
+      * @param url         请求的URL地址
+      * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+      * @param bodyParams  请求的form参数,可以为null
+      * @param headers     请求的header,可以为null
+      * @param fileName    上传的文件名
+      * @param fileBytes   上传的文件流
+      * @param okHttpClient      OkHttpClient实现类的实例对象
+      * @return 返回请求响应
+      */
+     public static void doAsyncPost(String url, Map<String, String> queryParams, Map<String, String>  bodyParams, Map<String, String> headers, String fileName,String mediaType,  byte[] fileBytes,OkHttpClient okHttpClient,Consumer<Response> callback) {
+        
+        doAsyncPost(url, queryParams, bodyParams,headers,fileName,mediaType,fileBytes,okHttpClient,callback,null);
+     }
    /**
      * 执行一个HTTP POST请求，返回请求响应的内容
      *
@@ -553,32 +593,36 @@ public class OkHttp3ClientUtil {
      * @param okHttpClient      OkHttpClient实现类的实例对象
      * @return 返回请求响应
      */
-    public static void doAsyncPost(String url, Map<String, String> queryParams, Map<String, String>  bodyParams, Map<String, String> headers, String fileName,String mediaType,  byte[] fileBytes,OkHttpClient okHttpClient,Consumer<Response> callback) {
+    public static void doAsyncPost(String url, Map<String, String> queryParams, Map<String, String>  bodyParams, Map<String, String> headers, String fileName,String mediaType,  byte[] fileBytes,OkHttpClient okHttpClient,Consumer<Response> callback,  Consumer<IOException> failCallback) {
         Request request = new Request.Builder()
                 .url(url + setUrlParams(url ,queryParams))
                 .headers(setHeaders(headers))
                 .post(setPostMultipartBody(bodyParams,fileName,mediaType,fileBytes))
                 .build();
     
-        doAsyncRequest(okHttpClient, request, callback);
+        doAsyncRequest(okHttpClient, request, callback,failCallback);
     }
     // endregion
 
-    private static void doAsyncRequest(OkHttpClient okHttpClient,Request request,  Consumer<Response> callback) {
+    private static void doAsyncRequest(OkHttpClient okHttpClient,Request request,  Consumer<Response> okCallback,  Consumer<IOException> failCallback) {
         if(okHttpClient==null){
             okHttpClient = client;            
         }
         okHttpClient.newCall(request).enqueue(new Callback() {           
             public void onFailure(Call call, IOException e) {
-                LogHelper.logger().error("执行HTTP " + request.method() + " " + request.url().toString()
-                        + "时，发生异常！异常信息：" + e.getLocalizedMessage());
+                LogHelper.logger().error("执行HTTP " + request.method() + " " + request.url().toString() + "时，发生异常！异常信息：" + e.getLocalizedMessage());
+                try {                            
+                    if(failCallback!=null){
+                        failCallback.accept(e);
+                    }
+                } catch (Exception ex) {
+                }
             }        
             public void onResponse(Call call, Response response) throws IOException {
                 try {
-                    callback.accept(response);
+                    okCallback.accept(response);
                 } catch (Exception e) {
-                    LogHelper.logger().error("执行HTTP " + request.method() + " " + request.url().toString()
-                            + "时，读取结果失败：" + e.getMessage());
+                    LogHelper.logger().error("执行HTTP " + request.method() + " " + request.url().toString()  + "时，读取结果失败：" + e.getMessage());
                 }
             }
         });
