@@ -497,16 +497,26 @@ public class OkHttp3ClientUtil {
      * @param headers     请求的header,可以为null
      */
     public static void doAsyncPost(String url, Map<String, String> queryParams, RequestBody requestBody,  Map<String, String> headers, Consumer<Response> callback,  Consumer<IOException> failCallback) {
+        doAsyncPost(url, queryParams, requestBody,headers,null,callback,null);
+    }
+
+    /**
+     * 执行一个HTTP POST请求，返回请求响应的内容
+     *
+     * @param url         请求的URL地址
+     * @param queryParams 请求的查询参数（url中的queryString参数）,可以为null
+     * @param requestBody      请求的实体信息,可以为null
+     * @param headers     请求的header,可以为null
+     */
+    public static void doAsyncPost(String url, Map<String, String> queryParams, RequestBody requestBody,  Map<String, String> headers, OkHttpClient okHttpClient, Consumer<Response> callback,  Consumer<IOException> failCallback) {
         Request request = new Request.Builder()
         .url(url + setUrlParams(url ,queryParams))
         .headers(setHeaders(headers))
         .post(requestBody)
         .build();
 
-        doAsyncRequest(null, request, callback,failCallback);
+        doAsyncRequest(okHttpClient, request, callback,failCallback);
     }
-
-
 
     /**
      * 执行一个HTTP POST请求，返回请求响应的内容
