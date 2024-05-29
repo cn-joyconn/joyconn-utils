@@ -12,5 +12,12 @@
     <groupId>cn.joyconn.utils</groupId>
     <artifactId>joyconn-utils-comm</artifactId>
 
-
+    <dependencies>
+        
+            <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+            </dependency>
+    </dependencies>
 </project>
