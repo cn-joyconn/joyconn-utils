@@ -1,5 +1,7 @@
 package cn.joyconn.utils.webApiResult;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -7,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Created by Eric.Zhang on 2017/3/13.
  */
 @Tag(name ="返回值")
+@JsonIgnoreProperties
 public class ResultObject<T> {
     @Schema(description  = "查询的页面大小")
     private ResultCode code;
