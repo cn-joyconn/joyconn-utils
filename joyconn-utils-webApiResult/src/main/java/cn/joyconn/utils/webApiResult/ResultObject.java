@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Created by Eric.Zhang on 2017/3/13.
  */
 @Tag(name ="返回值")
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ResultObject<T> {
     @Schema(description  = "查询的页面大小")
     private ResultCode code;
