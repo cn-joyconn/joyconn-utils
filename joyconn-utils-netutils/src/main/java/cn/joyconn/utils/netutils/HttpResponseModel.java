@@ -2,6 +2,8 @@ package cn.joyconn.utils.netutils;
 
 import java.util.List;
 
+import org.apache.http.Header;
+
 /**
  * Created by Eric.Zhang on 2017/1/10.
  */
@@ -28,6 +30,14 @@ public class HttpResponseModel {
     String method ;
     Integer connectTimeout ;
     Integer readTimeout;
+    Header[] headers;
+    
+    public Header[] getHeaders() {
+        return headers;
+    }
+    public void setHeaders(Header[] headers) {
+        this.headers = headers;
+    }
     public void setContentCollection(List<String> contentCollection){
         this.contentCollection=contentCollection;
     }
@@ -89,5 +99,6 @@ public class HttpResponseModel {
     public Integer getReadTimeout(){
         return readTimeout;
     }
+
 }
 

@@ -612,6 +612,7 @@ public class HttpRequestUtil {
 
 //			httpPut.setConfig(config);
             response = httpClient.execute(requestBase);
+            result.setHeaders(response.getAllHeaders());
             result.code=response.getStatusLine().getStatusCode();
             result.content = EntityUtils.toString(response.getEntity(), "UTF-8");
         }catch(Exception e){
